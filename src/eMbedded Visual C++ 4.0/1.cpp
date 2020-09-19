@@ -39,9 +39,12 @@
 #ifdef IA32 // ƒRƒ“ƒpƒCƒ‹ƒIƒvƒVƒ‡ƒ“‚Åè“®’è‹`
 #define TARGET_CPU TEXT("IA-32(x86)")
 #endif
+#define TARGET_PLATFORM TEXT("WinCE")
+#define COMPILER_NAME TEXT("Microsoft eMbedded Visual C++ 4.0")
 
 #define WND_CLASS_NAME TEXT("My_Window")
 #define TIMER_AWAIT 250
+#define NUMOFSTRINGTABLE 31 // String Table ‚ÉŠÜ‚Ü‚ê‚é•¶š—ñ‚Ì”
 #define APP_SETFOCUS WM_APP // WM_APP ‚©‚ç 0xBFFF ‚Ü‚Å‚Í©ìƒƒbƒZ[ƒW‚Æ‚µ‚Äg‚¦‚é
 
 // Dynamic Link —pŠÖ”‚Ìƒ|ƒCƒ“ƒ^Ši”[—p‚ÌŒ^‚ğ€”õ
@@ -56,6 +59,8 @@ struct INPUTBOX{ // “ü—Íó•t—p
 
 HWND hwnd, hbtn_sel, hbtn_ok, hbtn_abort, hbtn_clr, hedi_path, hedi_name, hedi_sepunit, hedi_out, hCmdBar, hwnd_temp, hwnd_focused;
 HINSTANCE hInst; // Instance Handle ‚ÌƒoƒbƒNƒAƒbƒv
+HMENU hmenu;
+HACCEL hAccel;
 DWORD dThreadID;
 HANDLE hThread;
 HDC hdc, hMemDC;
@@ -66,9 +71,9 @@ HPEN hPenSys, hPen; // æ“¾‚·‚éƒyƒ“
 HBITMAP hBitmap;
 PAINTSTRUCT ps;
 RECT rect;
-INT r=0, g=255, b=255, scrx=0, scry=0, editlen=0, btnsize[2], CmdBar_Height;
-bool aborted=false, TimerRestartable=true, withdll=true, working=false;
-TCHAR tcmes[2][4096], tctemp[1024];
+INT r=0, g=255, b=255, scrx=0, scry=0, editlen=0, btnsize[2], CmdBar_Height, StoppingTimer=0;
+bool aborted=false, withdll=true, working=false;
+TCHAR tcmes[NUMOFSTRINGTABLE][4096], tctemp[1024];
 INPUTBOX InputBox; // “ü—Íó•t
 WNDPROC wpedipath_old, wpediname_old, wpedisepunit_old;
 DLL_SHGetPathFromIDList dll_SHGetPathFromIDList;
@@ -82,7 +87,7 @@ LRESULT CALLBACK EditNameWindowProc(HWND, UINT, WPARAM, LPARAM);
 INT CALLBACK SelDirProc(HWND, UINT, LPARAM, LPARAM);
 DWORD WINAPI SeparateFiles(LPVOID);
 void Paint();
-void ResizeReplaceObjects();
+void ResizeMoveControls();
 void SelDir();
 void OutputToEditbox(HWND hWnd, LPCTSTR arg){ // ƒGƒfƒBƒbƒgƒ{ƒbƒNƒX‚Ì––”ö‚É•¶š—ñ‚ğ’Ç‰Á
     INT EditLen = (INT)SendMessage(hWnd, WM_GETTEXTLENGTH, 0, 0);
@@ -93,50 +98,35 @@ void OutputToEditbox(HWND hWnd, LPCTSTR arg){ // ƒGƒfƒBƒbƒgƒ{ƒbƒNƒX‚Ì––”ö‚É•¶š—
 
 // ‘æ3ˆø”‚ğLPSTRŒ^‚©‚çLPTSTRŒ^‚É•ÏX(CE‚Ì“Æ©d—l)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow){
-    hInst=hInstance;
+    hInst = hInstance;
     
-	dll_SHGetPathFromIDList = (DLL_SHGetPathFromIDList)GetProcAddress(LoadLibrary(TEXT("ceshell.dll")), TEXT("SHGetPathFromIDList"));
-	if(!dll_SHGetPathFromIDList) withdll=false;
-	dll_SHGetMalloc = (DLL_SHGetMalloc)GetProcAddress(LoadLibrary(TEXT("ceshell.dll")), TEXT("SHGetMalloc"));
-	if(!dll_SHGetMalloc) withdll=false;
-	dll_SHBrowseForFolder = (DLL_SHBrowseForFolder)GetProcAddress(LoadLibrary(TEXT("ceshell.dll")), TEXT("SHBrowseForFolder"));
-	if(!dll_SHBrowseForFolder) withdll=false;
+    dll_SHGetPathFromIDList = (DLL_SHGetPathFromIDList)GetProcAddress(LoadLibrary(TEXT("ceshell.dll")), TEXT("SHGetPathFromIDList"));
+    if(!dll_SHGetPathFromIDList) withdll=false;
+    dll_SHGetMalloc = (DLL_SHGetMalloc)GetProcAddress(LoadLibrary(TEXT("ceshell.dll")), TEXT("SHGetMalloc"));
+    if(!dll_SHGetMalloc) withdll=false;
+    dll_SHBrowseForFolder = (DLL_SHBrowseForFolder)GetProcAddress(LoadLibrary(TEXT("ceshell.dll")), TEXT("SHBrowseForFolder"));
+    if(!dll_SHBrowseForFolder) withdll=false;
     
     WNDCLASS wcl; // WNDCLASSEX‚Í”ñ‘Î‰
     wcl.hInstance = hInstance;
     wcl.lpszClassName = WND_CLASS_NAME;
-    wcl.lpfnWndProc = (WNDPROC)WindowProc;
-    wcl.style = NULL;
-    wcl.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(100)); // load the icon
+    wcl.lpfnWndProc = WindowProc;
+    wcl.style = 0;
+    wcl.hIcon = LoadIcon(hInstance, TEXT("Res_Icon")); // ƒAƒCƒRƒ“‚Ì“Ç‚İ‚İ
     wcl.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcl.lpszMenuName = 0; // CE‚Ìê‡Aƒƒjƒ…[ƒŠƒ\[ƒX‚ğ‚±‚±‚Å“Ç‚ñ‚Å‚à–³ˆÓ–¡
+    wcl.lpszMenuName = 0;
     wcl.cbClsExtra = 0;
     wcl.cbWndExtra = 0;
     wcl.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
     if(!RegisterClass(&wcl)) return FALSE;
 
-    // "how to use" statement
-    _tcscpy(tcmes[0], TEXT("‘å—Ê‚Ìƒtƒ@ƒCƒ‹‚ğw’è‚µ‚½’PˆÊ‚ÅƒtƒHƒ‹ƒ_‚ÉˆêŠ‡®—‚·‚éƒVƒ“ƒvƒ‹‚Èƒ\ƒtƒgƒEƒFƒA‚Å‚·B\n")
-        TEXT("ã‚Ì“ü—Íƒ{ƒbƒNƒX‚É®—‚µ‚½‚¢ƒpƒX(ƒtƒ‹ƒpƒX)Aƒtƒ@ƒCƒ‹–¼(ƒƒCƒ‹ƒhƒJ[ƒh‰Â)A")
-        TEXT("‰½ƒtƒHƒ‹ƒ_’PˆÊ‚ÉU‚è•ª‚¯‚é‚©‚ğ“ü—Í‚µAOKƒ{ƒ^ƒ“‚Ü‚½‚ÍEnter(Œˆ’è)‚Åˆ—‚ğŠJn‚µ‚Ü‚·B\n")
-        TEXT("u’†’fvƒ{ƒ^ƒ“‚Å’†’f‚Å‚«‚Ü‚·‚ªAŠù‚ÉU‚è•ª‚¯‚ç‚ê‚½ƒtƒ@ƒCƒ‹‚ğŒ³‚É–ß‚·‹@”\‚Í‚ ‚è‚Ü‚¹‚ñBŠî–{“I‚É«‘‡‚ÉU‚è•ª‚¯‚ç‚ê‚é‚Í‚¸‚Å‚·‚ªA")
-        TEXT("‚»‚¤‚È‚ç‚È‚¢‚±‚Æ‚à‚ ‚é‚æ‚¤‚Å‚·(‚È‚º‚»‚¤‚È‚é‚Ì‚©‚Í•s–¾‚Å‚·)B•K‚¸–‘O‚É•t‘®‚ÌSandboxƒtƒHƒ‹ƒ_‚Å“®ì‚ğŠm”F‚µ‚Ä‚­‚¾‚³‚¢B")
-    );
-
-    // "about" statement
-    _tcscpy(tcmes[1], TEXT("’´‘å—Êƒtƒ@ƒCƒ‹®— Ver. 1.02ƒÀ\n\n")
-        TEXT("»ìÒ‚ÍA‚±‚Ìƒ\ƒtƒgƒEƒFƒA‚Ìg—p‚É‚æ‚Á‚Ä”­¶‚µ‚½ƒoƒO“™‚É‚æ‚éŒë“®ì‚ğŠÜ‚Ş‚¢‚©‚È‚é‘¹ŠQ‚É‘Î‚µ‚Ä‚à•â’v‚µ‚Ü‚¹‚ñB©ŒÈÓ”C‚Å‚²—˜—p‚­‚¾‚³‚¢B\n")
-        TEXT("\nŠJ”­ŠÂ‹«: Microsoft eMbedded Visual C++ 4.0\n")
-        TEXT("ƒvƒƒOƒ‰ƒ€í•Ê: WinCE Application\n")
-        TEXT("CPUƒA[ƒLƒeƒNƒ`ƒƒ: ") TARGET_CPU
-        TEXT("\nƒrƒ‹ƒh“ú: ") TEXT(__DATE__) TEXT(" ") TEXT(__TIME__)
-        TEXT("\n\n(C) 2019-2020 watamario")
-    );
+    // ‰pŒê”ÅƒŠƒ\[ƒX“Ç‚İ‚İ
+    for(int i=0; i<NUMOFSTRINGTABLE; i++) LoadString(hInstance, i+1100, tcmes[i], sizeof(tcmes[0])/sizeof(tcmes[0][0]));
 
     hwnd = CreateWindowEx( // ‚±‚±‚ÌEx‚Í‚±‚Ì‚Ü‚Ü‚Å‚¢‚¢‚İ‚½‚¢
         0, 
         WND_CLASS_NAME,
-        TEXT("’´‘å—Êƒtƒ@ƒCƒ‹®—"),
+        tcmes[0],
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CLIPCHILDREN,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
@@ -161,10 +151,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
         hInstance,
         NULL);
 
-    hbtn_ok = CreateWindowEx( // ok button
+    hbtn_ok = CreateWindowEx( // OKƒ{ƒ^ƒ“
         0,
         TEXT("BUTTON"),
-        TEXT("OK"),
+        tcmes[9],
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
         0, 
         0,
@@ -175,10 +165,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
         hInstance,
         NULL);
 
-    hbtn_abort = CreateWindowEx( // abort button
+    hbtn_abort = CreateWindowEx( // ’†’fƒ{ƒ^ƒ“
         0,
         TEXT("BUTTON"),
-        TEXT("’†’f"),
+        tcmes[10],
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
         0,
         0,
@@ -189,10 +179,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
         hInstance,
         NULL);
 
-    hbtn_clr = CreateWindowEx( // clear the history button
+    hbtn_clr = CreateWindowEx( // —š—ğÁ‹ƒ{ƒ^ƒ“
         0,
         TEXT("BUTTON"),
-        TEXT("—š—ğÁ‹"),
+        tcmes[11],
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
         0,
         0,
@@ -208,14 +198,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
     ShowWindow(hwnd, nCmdShow);
     ShowWindow(hwnd, SW_MAXIMIZE);
     UpdateWindow(hwnd);
+    hAccel = LoadAccelerators(hInstance, TEXT("Res_Accel"));
 
     MSG msg;
     BOOL bRet;
     SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
 
-    while( (bRet=GetMessage(&msg, hwnd, 0, 0)) ){ // continue unless the message is WM_QUIT(=0)
-        if(bRet==-1) break;
-        else{
+    while( (bRet=GetMessage(&msg, hwnd, 0, 0)) ){ // ƒƒbƒZ[ƒW‚ª WM_QUIT(=0) ‚Å‚È‚¢ŒÀ‚èƒ‹[ƒv
+        if(bRet==-1) break; // ƒGƒ‰[‚È‚ç”²‚¯‚é
+        else if(!TranslateAccelerator(hwnd, hAccel, &msg)){
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
@@ -225,11 +216,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
     switch(uMsg) {
-        case WM_CREATE: // called at first
-            hCmdBar = CommandBar_Create(hInst, hWnd, 1);            
-            CommandBar_InsertMenubar(hCmdBar, hInst, 1001, 0);
+        case WM_CREATE: // ƒEƒBƒ“ƒhƒE¶¬
+            // ƒƒjƒ…[‚Ì‰Šú‰»
+            hCmdBar = CommandBar_Create(hInst, hWnd, 1);
+            CommandBar_InsertMenubarEx(hCmdBar, hInst, TEXT("Res_EnglishMenu"), 0);
             CommandBar_Show(hCmdBar, TRUE);
             CmdBar_Height = CommandBar_Height(hCmdBar);
+            hmenu = CommandBar_GetMenu(hCmdBar, 0);
+            CheckMenuRadioItem(hmenu, 2080, 2081, 2081, MF_BYCOMMAND);
 
             hMemDC = CreateCompatibleDC(NULL);
             hBshSys = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
@@ -268,7 +262,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
             wpediname_old = (WNDPROC)SetWindowLong(hedi_name, GWL_WNDPROC, (DWORD)EditNameWindowProc);
             
             hedi_sepunit = CreateWindowEx( // •ªŠ„’PˆÊ“ü—Íƒ{ƒbƒNƒX
-                NULL,
+                0,
                 TEXT("EDIT"),
                 TEXT("20"),
                 WS_CHILD | WS_VISIBLE | ES_LEFT | WS_BORDER | ES_AUTOHSCROLL | ES_NUMBER,
@@ -297,12 +291,14 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
                 NULL);
             break;
 
-        case WM_CLOSE: // called when closing
+        case WM_CLOSE: // I—¹
             KillTimer(hWnd, 1);
             DestroyWindow(hWnd);
             break;
 
         case WM_TIMER:
+            if( (hwnd_temp=GetFocus()) && (hwnd_temp==hedi_path || hwnd_temp==hedi_sepunit || hwnd_temp==hedi_name || hwnd_temp==hedi_out)) hwnd_focused = hwnd_temp;
+
             if (b<=0 && g<255) g+=8; //
             if (g>=255 && r>0) r-=8; //
             if (r<=0 && b<255) b+=8; //
@@ -319,16 +315,13 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 
             DeleteObject(hBrush);
             DeleteObject(hPen);
-            hBrush = CreateSolidBrush(RGB(r, g, b)); // rgbƒuƒ‰ƒV‚ğì¬(“h‚è‚Â‚Ô‚µ—p)
-            hPen = CreatePen(PS_SOLID, 1, RGB(r, g, b)); // rgbƒyƒ“‚ğì¬(—ÖŠs—p)
-            InvalidateRect(hwnd, NULL, FALSE);
-            
-            if(!(hwnd_temp=GetFocus()) || (hwnd_temp!=hedi_path && hwnd_temp!=hedi_sepunit && hwnd_temp!=hedi_name)) break;
-            hwnd_focused = hwnd_temp;
+            hBrush = CreateSolidBrush(RGB(r, g, b)); // ƒuƒ‰ƒV‚ğì¬(“h‚è‚Â‚Ô‚µ—p)
+            hPen = CreatePen(PS_SOLID, 1, RGB(r, g, b)); // ƒyƒ“‚ğì¬(—ÖŠs—p)
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
 
-        case WM_SIZE: // when the window size is changed
-            ResizeReplaceObjects();
+        case WM_SIZE: // ƒEƒBƒ“ƒhƒEƒTƒCƒY•ÏX
+            ResizeMoveControls();
             break;
 
         case WM_PAINT:
@@ -336,35 +329,33 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
             break;
 
         case WM_ACTIVATE:
-            // set focus on the input box when the main window is activated
+            // ƒƒCƒ“ƒEƒBƒ“ƒhƒE‚ªƒAƒNƒeƒBƒu‰»‚³‚ê‚½‚Æ‚«AˆÈ‘OƒtƒH[ƒJƒX‚ª“–‚½‚Á‚Ä‚¢‚½ƒGƒfƒBƒbƒg‚ÉƒtƒH[ƒJƒX‚ğ–ß‚·
             if(LOWORD(wParam) == WA_ACTIVE || LOWORD(wParam) == WA_CLICKACTIVE) SetFocus(hwnd_focused);
             break;
 
         case WM_COMMAND:
             switch(LOWORD(wParam)){
-				case 0: // Select Directory
+                case 0: // ƒfƒBƒŒƒNƒgƒŠ‘I‘ğ
                     KillTimer(hWnd, 1);
-					if(withdll) SelDir();
-					else{
-						MessageBox(
-                            hWnd,
-                            TEXT("ceshell.dll‚©‚ç•K—v‚ÈŠÖ”‚ğ“Ç‚İ‚ß‚È‚©‚Á‚½‚½‚ßAƒtƒHƒ‹ƒ_‘I‘ğƒ_ƒCƒAƒƒO‚ğg—p‚Å‚«‚Ü‚¹‚ñ¡\n")
-						    TEXT("‘ÎÛƒpƒX‚Ì—“‚É’¼Ú“ü—Í‚µ‚Ä‚­‚¾‚³‚¢¡"),
-                            TEXT("î•ñ"),
-                            MB_OK | MB_ICONINFORMATION);
-                        SetTimer(hWnd, 1, TIMER_AWAIT, NULL);
-					}
-					break;
+                    StoppingTimer++;
+                    if(withdll) SelDir();
+                    else MessageBox(hWnd, tcmes[29], tcmes[30], MB_OK | MB_ICONINFORMATION);
+                    StoppingTimer--;
+                    if(!StoppingTimer) SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
+                    break;
 
-                case 1: // OK button
-					if(working) break;
+                case 1: // OKƒ{ƒ^ƒ“
+                    if(working) break;
                     working = true;
                     KillTimer(hWnd, 1);
+                    StoppingTimer++;
                     EnableWindow(hbtn_ok, FALSE);
                     EnableWindow(hedi_path, FALSE);
                     EnableWindow(hedi_name, FALSE);
                     EnableWindow(hedi_sepunit, FALSE);
                     EnableWindow(hbtn_abort, TRUE);
+                    EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_GRAYED); // uƒIƒvƒVƒ‡ƒ“vƒƒjƒ…[‚ğƒOƒŒ[ƒAƒEƒg
+                    CommandBar_DrawMenuBar(hCmdBar, 1);
 
                     SendMessage(hedi_path, WM_GETTEXT, MAX_PATH, (LPARAM)InputBox.path);
                     SendMessage(hedi_name, WM_GETTEXT, MAX_PATH, (LPARAM)InputBox.name);
@@ -376,50 +367,90 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
                     SetThreadPriority(hThread, THREAD_PRIORITY_BELOW_NORMAL);
                     break;
 
-                case 2: // abort
+                case 2: // ’†’f
                     aborted = true;
                     break;
 
-                case 3: // clear the history
+                case 3: // —š—ğÁ‹
                     editlen = SendMessage(hedi_out, WM_GETTEXTLENGTH, 0, 0);
                     SendMessage(hedi_out, EM_SETSEL, 0, editlen);
                     SendMessage(hedi_out, EM_REPLACESEL, 0, (WPARAM)TEXT(""));
                     break;
 
-                case 2009: // close
+                case 2009: // I—¹
                     SendMessage(hWnd, WM_CLOSE, 0, 0);
                     break;
 
-                case 2020: // paste
+                case 2020: // “\‚è•t‚¯
                     SendMessage(hwnd_focused, WM_PASTE, 0, 0);
                     break;
 
-				case 2101: // how to use
-                    KillTimer(hWnd, 1);
-                    TimerRestartable = false;
-                    MessageBox(hWnd, tcmes[0], TEXT("g‚¢•û"), MB_OK | MB_ICONINFORMATION);
-                    SetTimer(hWnd, 1, TIMER_AWAIT, NULL);
-                    TimerRestartable = true;
+                case 2080: // “ú–{Œê‚É•ÏX
+                    DestroyMenu(hmenu);
+                    CommandBar_Destroy(hCmdBar);
+                    hCmdBar = CommandBar_Create(hInst, hWnd, 1);
+                    CommandBar_InsertMenubarEx(hCmdBar, hInst, TEXT("Res_JapaneseMenu"), 0);
+                    CommandBar_Show(hCmdBar, TRUE);
+                    CmdBar_Height = CommandBar_Height(hCmdBar);
+                    hmenu = CommandBar_GetMenu(hCmdBar, 0);
+                    CheckMenuRadioItem(hmenu, 2080, 2081, 2080, MF_BYCOMMAND);
+
+                    {for(int i=0; i<NUMOFSTRINGTABLE; i++) LoadString(hInst, i+1000, tcmes[i], sizeof(tcmes[0])/sizeof(tcmes[0][0]));}
+                    SetWindowText(hbtn_ok, tcmes[9]);
+                    SetWindowText(hbtn_abort, tcmes[10]);
+                    SetWindowText(hbtn_clr, tcmes[11]);
+                    SetWindowText(hwnd, tcmes[0]);
                     break;
 
-                case 2109: // about
+                case 2081: // ‰pŒê‚É•ÏX
+                    DestroyMenu(hmenu);
+                    CommandBar_Destroy(hCmdBar);
+                    hCmdBar = CommandBar_Create(hInst, hWnd, 1);
+                    CommandBar_InsertMenubarEx(hCmdBar, hInst, TEXT("Res_JapaneseMenu"), 0);
+                    CommandBar_Show(hCmdBar, TRUE);
+                    CmdBar_Height = CommandBar_Height(hCmdBar);
+                    hmenu = CommandBar_GetMenu(hCmdBar, 0);
+                    CheckMenuRadioItem(hmenu, 2080, 2081, 2081, MF_BYCOMMAND);
+
+                    {for(int i=0; i<NUMOFSTRINGTABLE; i++) LoadString(hInst, i+1100, tcmes[i], sizeof(tcmes[0])/sizeof(tcmes[0][0]));}
+                    SetWindowText(hbtn_ok, tcmes[9]);
+                    SetWindowText(hbtn_abort, tcmes[10]);
+                    SetWindowText(hbtn_clr, tcmes[11]);
+                    SetWindowText(hwnd, tcmes[0]);
+                    break;
+
+                case 2101: // g‚¢•û
                     KillTimer(hWnd, 1);
-                    TimerRestartable = false;
-                    MessageBox(hWnd, tcmes[1], TEXT("‚±‚ÌƒvƒƒOƒ‰ƒ€‚É‚Â‚¢‚Ä"), MB_OK | MB_ICONINFORMATION);
-                    SetTimer(hWnd, 1, TIMER_AWAIT, NULL);
-                    TimerRestartable = true;
+                    StoppingTimer++;
+                    MessageBox(hWnd, tcmes[8], tcmes[7], MB_OK | MB_ICONINFORMATION);
+                    StoppingTimer--;
+                    if(!StoppingTimer) SetTimer(hWnd, 1, TIMER_AWAIT, NULL);
+                    break;
+
+                case 2109: // ‚±‚ÌƒvƒƒOƒ‰ƒ€‚É‚Â‚¢‚Ä
+                    KillTimer(hWnd, 1);
+                    StoppingTimer++;
+                    wsprintf(tctemp, TEXT("%s")
+                        TEXT("%s") COMPILER_NAME TEXT("\n")
+                        TEXT("%s") TARGET_PLATFORM TEXT(" Application\n")
+                        TEXT("%s") TARGET_CPU TEXT("\n")
+                        TEXT("%s") TEXT(__DATE__) TEXT(" ") TEXT(__TIME__)
+                        TEXT("\n\n(C) 2019-2020 watamario"),
+                        tcmes[2], tcmes[3], tcmes[4], tcmes[5], tcmes[6]);
+                    MessageBox(hWnd, tctemp, tcmes[1], MB_OK | MB_ICONINFORMATION);
+                    StoppingTimer--;
+                    if(!StoppingTimer) SetTimer(hWnd, 1, TIMER_AWAIT, NULL);
                     break;
             }
-            if(LOWORD(wParam)<50) SetFocus(hwnd_focused); // set focus on input box if the clicked control isn't a edit box 
+            if(LOWORD(wParam)<50) SetFocus(hwnd_focused); // ƒGƒfƒBƒbƒgƒRƒ“ƒgƒ[ƒ‹ˆÈŠO‚È‚çƒGƒfƒBƒbƒgƒRƒ“ƒgƒ[ƒ‹‚ÉƒtƒH[ƒJƒX‚ğ–ß‚·
             else return DefWindowProc(hWnd, uMsg, wParam, lParam);
             break;
 
-		case APP_SETFOCUS:
-			SetFocus(hwnd_focused);
-			break;
+        case APP_SETFOCUS:
+            SetFocus(hwnd_focused);
+            break;
             
         case WM_DESTROY:
-            CommandBar_Destroy(hCmdBar);
             PostQuitMessage(0);
             break;
             
@@ -429,7 +460,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
     return 0;
 }
 
-// custom window procedure for the Edit Control
+// ƒGƒfƒBƒbƒgƒRƒ“ƒgƒ[ƒ‹—p‚ÌƒTƒuƒNƒ‰ƒX‰» Window Procedure
 LRESULT CALLBACK EditPathWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
     switch(uMsg){
         case WM_DESTROY:
@@ -481,11 +512,14 @@ LRESULT CALLBACK EditSepWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                     if(working) break;
                     working = true;
                     KillTimer(hWnd, 1);
+                    StoppingTimer++;
                     EnableWindow(hbtn_ok, FALSE);
                     EnableWindow(hedi_path, FALSE);
                     EnableWindow(hedi_name, FALSE);
                     EnableWindow(hedi_sepunit, FALSE);
                     EnableWindow(hbtn_abort, TRUE);
+                    EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_GRAYED); // uƒIƒvƒVƒ‡ƒ“vƒƒjƒ…[‚ğƒOƒŒ[ƒAƒEƒg
+                    CommandBar_DrawMenuBar(hCmdBar, 1);
 
                     SendMessage(hedi_path, WM_GETTEXT, MAX_PATH, (LPARAM)InputBox.path);
                     SendMessage(hedi_name, WM_GETTEXT, MAX_PATH, (LPARAM)InputBox.name);
@@ -536,14 +570,14 @@ LRESULT CALLBACK EditSepWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 INT CALLBACK SelDirProc(HWND hWnd, UINT uMsg, LPARAM lParam1, LPARAM lParam2){
     switch (uMsg) {
         case BFFM_VALIDATEFAILED:
-            MessageBox(hWnd, TEXT("•s³‚ÈƒtƒHƒ‹ƒ_‚Å‚·"), TEXT("Error"), MB_OK | MB_ICONEXCLAMATION);
+            MessageBox(hWnd, tcmes[12], tcmes[13], MB_OK | MB_ICONEXCLAMATION);
             return 1;
     }
     return 0;
 }
 
 void SelDir(){
-	INT nItem = -1;
+    INT nItem = -1;
     TCHAR szName[MAX_PATH];
     BOOL bDir = FALSE;
     BROWSEINFO bi;
@@ -555,37 +589,31 @@ void SelDir(){
     bi.hwndOwner = hwnd;
     bi.lpfn = SelDirProc;
     bi.ulFlags = BIF_EDITBOX | BIF_VALIDATE | BIF_NEWDIALOGSTYLE;
-    bi.lpszTitle = TEXT("®—‘ÎÛ‚ÌƒtƒHƒ‹ƒ_‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢B");
+    bi.lpszTitle = tcmes[14];
     lpid = dll_SHBrowseForFolder(&bi);
 
-    if(!lpid){
-		SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
-		return;
-    }else{
+    if(lpid){
         hr = dll_SHGetMalloc(&pMalloc);
         if(hr == E_FAIL){
-            MessageBox(hwnd, TEXT("SHGetMalloc()ŠÖ”‚ÅƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½"), TEXT("Error"), MB_OK | MB_ICONERROR);
-            SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
-			return;
+            MessageBox(hwnd, tcmes[15], tcmes[13], MB_OK | MB_ICONERROR);
+            return;
         }
         dll_SHGetPathFromIDList(lpid, szName);
         if(_tcscmp(szName, TEXT("\\"))==0) _tcscpy(szName, TEXT(""));
-		SetWindowText(hedi_path, szName);
+        SetWindowText(hedi_path, szName);
         pMalloc->Free(lpid);
         pMalloc->Release();
     }
-	SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
-	SendMessage(hwnd, APP_SETFOCUS, 0, 0);
     return;
 }
 
-void ResizeReplaceObjects(){
+void ResizeMoveControls(){
     GetClientRect(hwnd, &rect);
     scrx = rect.right; scry = rect.bottom-CmdBar_Height; // Command Bar‚Ì•‚¾‚¯ˆø‚­
 
     // create a font for the main window
-    if(scrx/20 < scry/10) rLogfont.lfHeight = scrx/20;
-    else rLogfont.lfHeight = scry/10;
+    if(scrx/24 < scry/12) rLogfont.lfHeight = scrx/24;
+    else rLogfont.lfHeight = scry/12;
     rLogfont.lfWidth = 0;
     rLogfont.lfEscapement = 0;
     rLogfont.lfOrientation = 0;
@@ -602,7 +630,7 @@ void ResizeReplaceObjects(){
     DeleteObject(hMesFont);
     hMesFont = CreateFontIndirect(&rLogfont); // ƒtƒHƒ“ƒg‚ğì¬            
     
-    // create a font for buttons
+    // ƒ{ƒ^ƒ“—p‚ÌƒtƒHƒ“ƒg‚ğì¬
     if(24*scrx/700 < 24*scry/400) rLogfont.lfHeight = 24*scrx/700;
     else rLogfont.lfHeight = 24*scry/400;
     rLogfont.lfWidth = 0;
@@ -621,13 +649,13 @@ void ResizeReplaceObjects(){
     DeleteObject(hFbtn);
     hFbtn=CreateFontIndirect(&rLogfont);
     
-    // create a font for notes
+    // ’—p‚ÌƒtƒHƒ“ƒg‚ğì¬
     if(12*scrx/700 < 12*scry/400) rLogfont.lfHeight = 12*scrx/700;
     else rLogfont.lfHeight = 12*scry/400;
     DeleteObject(hFnote);
     hFnote = CreateFontIndirect(&rLogfont);
 
-    // create a font for edit boxes
+    // ƒGƒfƒBƒbƒgƒRƒ“ƒgƒ[ƒ‹—p‚ÌƒtƒHƒ“ƒg‚ğì¬
     if(16*scrx/700 < 16*scry/400) rLogfont.lfHeight = 16*scrx/700;
     else rLogfont.lfHeight = 16*scry/400;
     if(rLogfont.lfHeight<12) rLogfont.lfHeight = 12;
@@ -647,7 +675,7 @@ void ResizeReplaceObjects(){
     DeleteObject(hFedi);
     hFedi = CreateFontIndirect(&rLogfont);
 
-    // apply newly created fonts to objects
+    // ŠeƒRƒ“ƒgƒ[ƒ‹‚ÉƒtƒHƒ“ƒg‚ğ“K—p
     SendMessage(hbtn_sel, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
     SendMessage(hbtn_ok, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
     SendMessage(hbtn_abort, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
@@ -657,7 +685,7 @@ void ResizeReplaceObjects(){
     SendMessage(hedi_name, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
     SendMessage(hedi_sepunit, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
 
-    // move and resize objects
+    // ˆÚ“®‚ÆƒTƒCƒY•ÏX
     MoveWindow(hCmdBar, NULL, NULL, NULL, NULL, TRUE);
     btnsize[0] = 64*scrx/700; btnsize[1] = 32*scry/400;
     MoveWindow(hedi_path, btnsize[0], CmdBar_Height, scrx-btnsize[0]*2, btnsize[1], TRUE);
@@ -666,7 +694,7 @@ void ResizeReplaceObjects(){
     MoveWindow(hedi_sepunit, btnsize[0]*4, btnsize[1]+CmdBar_Height, btnsize[0]*2, btnsize[1], TRUE);
     MoveWindow(hbtn_ok, btnsize[0]*6, btnsize[1]+CmdBar_Height, btnsize[0], btnsize[1], TRUE);
     MoveWindow(hbtn_abort, btnsize[0]*7, btnsize[1]+CmdBar_Height, btnsize[0], btnsize[1], TRUE);
-    MoveWindow(hbtn_clr, btnsize[0]*8, btnsize[1]+CmdBar_Height, btnsize[0]*2, btnsize[1], TRUE);
+    MoveWindow(hbtn_clr, btnsize[0]*8, btnsize[1]+CmdBar_Height, btnsize[0]*5/2, btnsize[1], TRUE);
     MoveWindow(hedi_out, scrx/20, scry*3/10+CmdBar_Height, scrx*9/10, scry*13/20, TRUE);
 
     hBitmap = CreateCompatibleBitmap(hdc=GetDC(hwnd), rect.right, rect.bottom);
@@ -689,24 +717,22 @@ void Paint(){
     Rectangle(hMemDC, btnsize[0]*3, btnsize[1], btnsize[0]*4, btnsize[1]*2);
 
     SetTextColor(hMemDC, RGB(0, 0, 0));
-	SetBkMode(hMemDC, TRANSPARENT);
+    SetBkMode(hMemDC, TRANSPARENT);
     SelectObject(hMemDC, hFnote); // ƒfƒoƒCƒXƒRƒ“ƒeƒLƒXƒg‚ÉƒtƒHƒ“ƒg‚ğİ’è
     rect.right=btnsize[0]; rect.bottom=btnsize[1];
-    DrawText(hMemDC, TEXT("‘ÎÛƒpƒX:"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    rect.top=btnsize[1]; rect.bottom=btnsize[1]*3/2;
-    DrawText(hMemDC, TEXT("ƒtƒ@ƒCƒ‹–¼"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    rect.top=btnsize[1]*3/2; rect.bottom=btnsize[1]*2;
-    DrawText(hMemDC, TEXT("‚ÌŒ`®:"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    rect.top=btnsize[1]; rect.left=btnsize[0]*3; rect.right=btnsize[0]*4;
-    DrawText(hMemDC, TEXT("•ªŠ„’PˆÊ:"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    DrawText(hMemDC, tcmes[16], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    rect.top=btnsize[1]; rect.bottom=btnsize[1]*2;
+    DrawText(hMemDC, tcmes[17], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    rect.top=btnsize[1]; rect.bottom=btnsize[1]*2; rect.left=btnsize[0]*3; rect.right=btnsize[0]*4;
+    DrawText(hMemDC, tcmes[18], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
     SetBkMode(hMemDC, OPAQUE);
     SetBkColor(hMemDC, RGB(255, 255, 0));
     SetTextColor(hMemDC, RGB(0, 0, 255));
-	SelectObject(hMemDC, hMesFont);
+    SelectObject(hMemDC, hMesFont);
     rect.left=0; rect.right=scrx; rect.top=btnsize[1]*2; rect.bottom=scry*3/10;
-    if(working) DrawText(hMemDC, TEXT("®—’†‚Å‚·..."), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    else DrawText(hMemDC, TEXT("‘å—Ê‚Ìƒtƒ@ƒCƒ‹‚ğ®—‚µ‚Ü‚·"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    if(working) DrawText(hMemDC, tcmes[19], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    else DrawText(hMemDC, tcmes[20], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     rect.left=0; rect.right=scrx; rect.top=0; rect.bottom=scry;
     
     hdc = BeginPaint(hwnd, &ps);
@@ -727,41 +753,47 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
         EnableWindow(hedi_name, TRUE);
         EnableWindow(hedi_sepunit, TRUE);
         EnableWindow(hbtn_abort, FALSE);
-        OutputToEditbox(hedi_out, TEXT("•ªŠ„’PˆÊ‚É–³Œø‚È’l‚ª“ü—Í‚³‚ê‚Ü‚µ‚½B\r\n"));
-        SetWindowText(hwnd, TEXT("’´‘å—Êƒtƒ@ƒCƒ‹®—"));
-        if(TimerRestartable) SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
+        EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_ENABLED);
+        CommandBar_DrawMenuBar(hCmdBar, 1);
+        OutputToEditbox(hedi_out, tcmes[21]);
+        SetWindowText(hwnd, tcmes[0]);
+        StoppingTimer--;
+        if(!StoppingTimer) SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
         SendMessage(hwnd, APP_SETFOCUS, 0, 0);
-        working=false;
+        working = false;
         return 0;
     }
 
     wsprintf(tcsf, TEXT("%s\\%s"), InputBox.path, InputBox.name);
     hFFile = FindFirstFile(tcsf, &file);
-    if(hFFile==INVALID_HANDLE_VALUE){ // ƒGƒ‰[
+    if(hFFile==INVALID_HANDLE_VALUE){ // ŠY“–ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚È‚¢ê‡
         EnableWindow(hbtn_ok, TRUE);
         EnableWindow(hedi_path, TRUE);
         EnableWindow(hedi_name, TRUE);
         EnableWindow(hedi_sepunit, TRUE);
         EnableWindow(hbtn_abort, FALSE);
-        OutputToEditbox(hedi_out, TEXT("ŠY“–‚·‚éƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½¡“ü—Í‚µ‚½ƒpƒX¤ƒtƒ@ƒCƒ‹–¼‚ÌŒ`®‚ÉŒë‚è‚ª‚È‚¢‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢¡\r\n"));
-        SetWindowText(hwnd, TEXT("’´‘å—Êƒtƒ@ƒCƒ‹®—"));
-        if(TimerRestartable) SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
+        EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_ENABLED);
+        CommandBar_DrawMenuBar(hCmdBar, 1);
+        OutputToEditbox(hedi_out, tcmes[22]);
+        SetWindowText(hwnd, tcmes[0]);
+        StoppingTimer--;
+        if(!StoppingTimer) SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
         SendMessage(hwnd, APP_SETFOCUS, 0, 0);
-		working=false;
+        working = false;
         return 0;
     }
 
     wsprintf(tcsf, TEXT("%s\\1"), InputBox.path);
     CreateDirectory(tcsf, NULL);
     if(!(file.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
-        _tcscpy(tcresult, TEXT("Œ»İ1ƒtƒHƒ‹ƒ_–Ú‚É®—’†..."));
+        _tcscpy(tcresult, tcmes[23]);
         SetWindowText(hwnd, tcresult);
         OutputToEditbox(hedi_out, tcresult);
         SendMessage(hedi_out, EM_REPLACESEL, 0, (WPARAM)TEXT("\r\n"));
         wsprintf(tcsf, TEXT("%s\\%s"), InputBox.path, file.cFileName);
         wsprintf(tcdest, TEXT("%s\\1\\%s"), InputBox.path, file.cFileName);
         if(!MoveFile(tcsf, tcdest)){
-            wsprintf(tcresult, TEXT("ƒtƒ@ƒCƒ‹%s‚ğ%s‚ÉˆÚ“®’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½¡ƒtƒ@ƒCƒ‹‚ğŠJ‚¢‚Ä‚¢‚éƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Í‘S‚ÄI—¹‚µ¤“Ç‚İæ‚èê—p‚É‚È‚Á‚Ä‚¢‚È‚¢‚©Šm”F‚µ‚Ä‰º‚³‚¢¡\r\n"), tcsf, tcdest);
+            wsprintf(tcresult, tcmes[24], tcsf, tcdest);
             OutputToEditbox(hedi_out, tcresult);
         }
         i++;
@@ -770,7 +802,7 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
         if(FindNextFile(hFFile, &file)){
             if(!(file.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
                 if(i==0){
-                    _tcscpy(tcresult, TEXT("Œ»İ1ƒtƒHƒ‹ƒ_–Ú‚É®—’†..."));
+                    _tcscpy(tcresult, tcmes[23]);
                     SetWindowText(hwnd, tcresult);
                     OutputToEditbox(hedi_out, tcresult);
                     SendMessage(hedi_out, EM_REPLACESEL, 0, (WPARAM)TEXT("\r\n"));
@@ -779,7 +811,7 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
                     dirnum++;
                     wsprintf(tcsf, TEXT("%s\\%d"), InputBox.path, dirnum);
                     CreateDirectory(tcsf, NULL);
-                    wsprintf(tcresult, TEXT("Œ»İ%dƒtƒHƒ‹ƒ_–Ú‚É®—’†..."), dirnum);
+                    wsprintf(tcresult, tcmes[25], dirnum);
                     SetWindowText(hwnd, tcresult);
                     OutputToEditbox(hedi_out, tcresult);
                     SendMessage(hedi_out, EM_REPLACESEL, 0, (WPARAM)TEXT("\r\n"));
@@ -787,24 +819,24 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
                 wsprintf(tcsf, TEXT("%s\\%s"), InputBox.path, file.cFileName);
                 wsprintf(tcdest, TEXT("%s\\%d\\%s"), InputBox.path, dirnum, file.cFileName);
                 if(!MoveFile(tcsf, tcdest)){
-                    wsprintf(tcresult, TEXT("ƒtƒ@ƒCƒ‹%s‚ğ%s‚ÉˆÚ“®’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½¡ƒtƒ@ƒCƒ‹‚ğŠJ‚¢‚Ä‚¢‚éƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Í‘S‚ÄI—¹‚µ¤“Ç‚İæ‚èê—p‚É‚È‚Á‚Ä‚¢‚È‚¢‚©Šm”F‚µ‚Ä‰º‚³‚¢¡\r\n"), tcsf, tcdest);
+                    wsprintf(tcresult, tcmes[24], tcsf, tcdest);
                     OutputToEditbox(hedi_out, tcresult);
                 }
                 i++;
             }
         }else{
-            if(GetLastError()==ERROR_NO_MORE_FILES) _tcscpy(tcresult, TEXT("®—Š®—¹¡\r\n"));
-            else _tcscpy(tcresult, TEXT("®—’†‚É•s–¾‚ÈƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½¡\r\n"));
+            if(GetLastError()==ERROR_NO_MORE_FILES) _tcscpy(tcresult, tcmes[26]);
+            else _tcscpy(tcresult, tcmes[27]);
             break;
         }
     }
 
     FindClose(hFFile);
-    SetWindowText(hwnd, TEXT("’´‘å—Êƒtƒ@ƒCƒ‹®—"));
+    SetWindowText(hwnd, tcmes[0]);
 
     if(aborted){
         aborted = false;
-        _tcscpy(tcresult, TEXT("ˆ—‚Í’†’f‚³‚ê‚Ü‚µ‚½¡\r\n"));
+        _tcscpy(tcresult, tcmes[28]);
     }
     
     OutputToEditbox(hedi_out, tcresult);
@@ -814,9 +846,12 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
     EnableWindow(hedi_name, TRUE);
     EnableWindow(hedi_sepunit, TRUE);
     EnableWindow(hbtn_abort, FALSE);
+    EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_ENABLED);
+    CommandBar_DrawMenuBar(hCmdBar, 1);
     InvalidateRect(hwnd, NULL, FALSE);
-    if(TimerRestartable) SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
+    StoppingTimer--;
+    if(!StoppingTimer) SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
     SendMessage(hwnd, APP_SETFOCUS, 0, 0);
-	working=false;
+    working = false;
     return 0;
 }

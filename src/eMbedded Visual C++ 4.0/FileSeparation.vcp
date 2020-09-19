@@ -1,4 +1,4 @@
-# Microsoft eMbedded Visual Tools Project File - Name="eVC4" - Package Owner=<4>
+# Microsoft eMbedded Visual Tools Project File - Name="FileSeparation" - Package Owner=<4>
 # Microsoft eMbedded Visual Tools Generated Build File, Format Version 6.02
 # ** 編集しないでください **
 
@@ -15,32 +15,32 @@
 # TARGTYPE "Win32 (WCE ARMV4T) Application" 0xa401
 # TARGTYPE "Win32 (WCE MIPSII) Application" 0xa101
 
-CFG=eVC4 - Win32 (WCE ARMV4I) Debug
+CFG=FileSeparation - Win32 (WCE ARMV4I) Debug
 !MESSAGE これは有効なメイクファイルではありません。このプロジェクトをビルドするためには NMAKE を使用してください。
 !MESSAGE [メイクファイルのエクスポート] コマンドを使用して実行してください
 !MESSAGE 
-!MESSAGE NMAKE /f "eVC4.vcn".
+!MESSAGE NMAKE /f "FileSeparation.vcn".
 !MESSAGE 
 !MESSAGE NMAKE の実行時に構成を指定できます
 !MESSAGE コマンド ライン上でマクロの設定を定義します。例 :
 !MESSAGE 
-!MESSAGE NMAKE /f "eVC4.vcn" CFG="eVC4 - Win32 (WCE ARMV4I) Debug"
+!MESSAGE NMAKE /f "FileSeparation.vcn" CFG="FileSeparation - Win32 (WCE ARMV4I) Debug"
 !MESSAGE 
 !MESSAGE 選択可能なビルド モード :
 !MESSAGE 
-!MESSAGE "eVC4 - Win32 (WCE ARMV4I) Release" ("Win32 (WCE ARMV4I) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE ARMV4I) Debug" ("Win32 (WCE ARMV4I) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE ARMV4) Release" ("Win32 (WCE ARMV4) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE ARMV4T) Release" ("Win32 (WCE ARMV4T) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE emulator) Release" ("Win32 (WCE emulator) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE MIPS16) Release" ("Win32 (WCE MIPS16) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE MIPSII) Release" ("Win32 (WCE MIPSII) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE MIPSII_FP) Release" ("Win32 (WCE MIPSII_FP) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE MIPSIV) Release" ("Win32 (WCE MIPSIV) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE MIPSIV_FP) Release" ("Win32 (WCE MIPSIV_FP) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE SH3) Release" ("Win32 (WCE SH3) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE SH4) Release" ("Win32 (WCE SH4) Application" 用)
-!MESSAGE "eVC4 - Win32 (WCE x86) Release" ("Win32 (WCE x86) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE ARMV4I) Release" ("Win32 (WCE ARMV4I) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE ARMV4I) Debug" ("Win32 (WCE ARMV4I) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE ARMV4) Release" ("Win32 (WCE ARMV4) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE ARMV4T) Release" ("Win32 (WCE ARMV4T) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE emulator) Release" ("Win32 (WCE emulator) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE MIPS16) Release" ("Win32 (WCE MIPS16) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE MIPSII) Release" ("Win32 (WCE MIPSII) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE MIPSII_FP) Release" ("Win32 (WCE MIPSII_FP) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE MIPSIV) Release" ("Win32 (WCE MIPSIV) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE MIPSIV_FP) Release" ("Win32 (WCE MIPSIV_FP) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE SH3) Release" ("Win32 (WCE SH3) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE SH4) Release" ("Win32 (WCE SH4) Application" 用)
+!MESSAGE "FileSeparation - Win32 (WCE x86) Release" ("Win32 (WCE x86) Application" 用)
 !MESSAGE 
 
 # Begin Project
@@ -49,7 +49,7 @@ CFG=eVC4 - Win32 (WCE ARMV4I) Debug
 # PROP Scc_LocalPath ""
 # PROP ATL_Project 2
 
-!IF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4I) Release"
+!IF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4I) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -83,7 +83,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4IRel/AppMain.exe" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4I) Debug"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4I) Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -117,7 +117,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4IDbg/AppMain.exe" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -151,7 +151,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4Rel/FS_ARMv4.exe" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4T) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4T) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -185,7 +185,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4TRel/FS_ARMv4T.exe" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE emulator) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE emulator) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -219,7 +219,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 # ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"emulatorRel/FS_Emulator.exe" /subsystem:$(CESubsystem) /MACHINE:IX86
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPS16) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPS16) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -253,7 +253,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPS16 /ALIGN:4096
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPS16Rel/FS_MIPS16.exe" /subsystem:$(CESubsystem) /MACHINE:MIPS16 /ALIGN:4096
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSII) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSII) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -287,7 +287,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPS
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIIRel/FS_MIPSII.exe" /subsystem:$(CESubsystem) /MACHINE:MIPS
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSII_FP) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSII_FP) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -321,7 +321,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPS
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSII_FPRel/FS_MIPSII_FP.exe" /subsystem:$(CESubsystem) /MACHINE:MIPS
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSIV) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSIV) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -355,7 +355,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIVRel/FS_MIPSIV.exe" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSIV_FP) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSIV_FP) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -389,7 +389,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIV_FPRel/FS_MIPSIV_FP.exe" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE SH3) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE SH3) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -423,7 +423,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:SH3 /align:4096
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"SH3Rel/FS_SH3.exe" /subsystem:$(CESubsystem) /MACHINE:SH3 /align:4096
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE SH4) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE SH4) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -457,7 +457,7 @@ LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:SH4
 # ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"SH4Rel/FS_SH4.exe" /subsystem:$(CESubsystem) /MACHINE:SH4
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE x86) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE x86) Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -495,19 +495,19 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "eVC4 - Win32 (WCE ARMV4I) Release"
-# Name "eVC4 - Win32 (WCE ARMV4I) Debug"
-# Name "eVC4 - Win32 (WCE ARMV4) Release"
-# Name "eVC4 - Win32 (WCE ARMV4T) Release"
-# Name "eVC4 - Win32 (WCE emulator) Release"
-# Name "eVC4 - Win32 (WCE MIPS16) Release"
-# Name "eVC4 - Win32 (WCE MIPSII) Release"
-# Name "eVC4 - Win32 (WCE MIPSII_FP) Release"
-# Name "eVC4 - Win32 (WCE MIPSIV) Release"
-# Name "eVC4 - Win32 (WCE MIPSIV_FP) Release"
-# Name "eVC4 - Win32 (WCE SH3) Release"
-# Name "eVC4 - Win32 (WCE SH4) Release"
-# Name "eVC4 - Win32 (WCE x86) Release"
+# Name "FileSeparation - Win32 (WCE ARMV4I) Release"
+# Name "FileSeparation - Win32 (WCE ARMV4I) Debug"
+# Name "FileSeparation - Win32 (WCE ARMV4) Release"
+# Name "FileSeparation - Win32 (WCE ARMV4T) Release"
+# Name "FileSeparation - Win32 (WCE emulator) Release"
+# Name "FileSeparation - Win32 (WCE MIPS16) Release"
+# Name "FileSeparation - Win32 (WCE MIPSII) Release"
+# Name "FileSeparation - Win32 (WCE MIPSII_FP) Release"
+# Name "FileSeparation - Win32 (WCE MIPSIV) Release"
+# Name "FileSeparation - Win32 (WCE MIPSIV_FP) Release"
+# Name "FileSeparation - Win32 (WCE SH3) Release"
+# Name "FileSeparation - Win32 (WCE SH4) Release"
+# Name "FileSeparation - Win32 (WCE x86) Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -515,31 +515,31 @@ LINK32=link.exe
 
 SOURCE=.\1.cpp
 
-!IF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4I) Release"
+!IF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4I) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4I) Debug"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4I) Debug"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4T) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4T) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE emulator) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE emulator) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPS16) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPS16) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSII) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSII) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSII_FP) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSII_FP) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSIV) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSIV) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSIV_FP) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSIV_FP) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE SH3) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE SH3) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE SH4) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE SH4) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE x86) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE x86) Release"
 
 !ENDIF 
 
@@ -560,31 +560,31 @@ SOURCE=.\app.ico
 
 SOURCE=.\resource.rc
 
-!IF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4I) Release"
+!IF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4I) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4I) Debug"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4I) Debug"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE ARMV4T) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE ARMV4T) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE emulator) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE emulator) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPS16) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPS16) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSII) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSII) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSII_FP) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSII_FP) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSIV) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSIV) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE MIPSIV_FP) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE MIPSIV_FP) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE SH3) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE SH3) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE SH4) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE SH4) Release"
 
-!ELSEIF  "$(CFG)" == "eVC4 - Win32 (WCE x86) Release"
+!ELSEIF  "$(CFG)" == "FileSeparation - Win32 (WCE x86) Release"
 
 !ENDIF 
 

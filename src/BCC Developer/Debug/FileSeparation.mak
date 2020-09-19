@@ -8,10 +8,10 @@ RC=brc32
 CFLAG=-W  -3 -Od -w -AT -pc -H- -k -b -v -y -WU -DDEBUG
 OUTDIR=-nDebug
 CINCS=
-TARGET=Debug\FileSeparating.exe
-SRC1="C:\Users\watamario\Documents\Git-Local-Repo\File-Separating\src\BCC Developer\main.cpp"
-OBJ1=Debug\main.obj
-RC1="C:\Users\watamario\Documents\Git-Local-Repo\File-Separating\src\BCC Developer\resource.rc"
+TARGET=Debug\FileSeparation.exe
+SRC1="D:\Programming\File Separating\BCC Developer\1.cpp"
+OBJ1=Debug\1.obj
+RC1="D:\Programming\File Separating\BCC Developer\resource.rc"
 RES1=Debug\resource.res
 RESINCS=-i"C:\Program Files (x86)\bcc\borland\bcc55\Include"
 

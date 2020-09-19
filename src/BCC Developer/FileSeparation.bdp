@@ -1,7 +1,7 @@
 [Project]
 Version=1.2.21
 Count=1
-Filename1=main.cpp,1,BCC.bdp,1,main.cpp
+Filename1=1.cpp,1,FileSeparation.bdp,1,1.cpp
 
 [Compile]
 ResourceName=resource.rc
@@ -11,8 +11,8 @@ Current=1
 
 [Compile1]
 DefName=Debug
-ExeName=FileSeparating.exe
-MakeName=FileSeparating.mak
+ExeName=FileSeparation.exe
+MakeName=FileSeparation.mak
 NoMakefile=0
 UseMakefileEx=0
 Target=-W
@@ -36,8 +36,8 @@ MakeAfter=
 
 [Compile2]
 DefName=Release
-ExeName=FileSeparating.exe
-MakeName=FileSeparating.mak
+ExeName=FileSeparation.exe
+MakeName=FileSeparation.mak
 NoMakefile=0
 UseMakefileEx=0
 Target=-W
@@ -60,7 +60,8 @@ MakeBefore=
 MakeAfter=
 
 [OpenFiles]
-FileCount=1
-FileName1=main.cpp
+FileCount=2
+FileName1=1.cpp
+FileName2=resource.rc
 ActivePageIndex=0
 

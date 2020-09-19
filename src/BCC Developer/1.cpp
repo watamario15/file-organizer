@@ -4,7 +4,10 @@
 
 #define TARGET_PLATFORM TEXT("Win32")
 #define TARGET_CPU TEXT("IA-32(x86)")
+#define COMPILER_NAME TEXT("Borland C++ 5.5.1 for Win32 w/ BCC Developer")
+
 #define WND_CLASS_NAME TEXT("My_Window")
+#define NUMOFSTRINGTABLE 29 // String Table Ç…ä‹Ç‹ÇÍÇÈï∂éöóÒÇÃêî
 #define APP_SETFOCUS WM_APP // WM_APP Ç©ÇÁ 0xBFFF Ç‹Ç≈ÇÕé©çÏÉÅÉbÉZÅ[ÉWÇ∆ÇµÇƒégÇ¶ÇÈ
 
 struct INPUTBOX{ // ì¸óÕéÛïtóp
@@ -14,6 +17,9 @@ struct INPUTBOX{ // ì¸óÕéÛïtóp
 };
 
 HWND hwnd, hbtn_sel, hbtn_ok, hbtn_abort, hbtn_clr, hedi_path, hedi_name, hedi_sepunit, hedi_out, hwnd_temp, hwnd_focused;
+HINSTANCE hInst;
+HMENU hmenu;
+HACCEL hAccel;
 DWORD dThreadID;
 HANDLE hThread;
 HDC hdc, hMemDC;
@@ -26,9 +32,9 @@ PAINTSTRUCT ps;
 RECT rect;
 INT r=0, g=255, b=255, scrx=0, scry=0, editlen=0, btnsize[2];
 bool aborted=false, curdir=false, working=false;
-TCHAR tcmes[2][4096], tctemp[1024];
+TCHAR tcmes[NUMOFSTRINGTABLE][1024], tctemp[1024];
 INPUTBOX InputBox; // ì¸óÕéÛït
-WNDPROC wpedipath_old, wpediname_old, wpedisepunit_old;
+WNDPROC wpedipath_old, wpediname_old, wpedisepunit_old; // å≥ÇÃ Window Procedure ÇÃÉAÉhÉåÉXäiî[ópïœêî
 
 LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK EditPathWindowProc(HWND, UINT, WPARAM, LPARAM);
@@ -37,7 +43,7 @@ LRESULT CALLBACK EditNameWindowProc(HWND, UINT, WPARAM, LPARAM);
 INT CALLBACK SelDirProc(HWND, UINT, LPARAM, LPARAM);
 DWORD WINAPI SeparateFiles(LPVOID);
 void Paint();
-void ResizeReplaceObjects();
+void ResizeMoveControls();
 void SelDir();
 void OutputToEditbox(HWND hWnd, LPCTSTR arg){ // ÉGÉfÉBÉbÉgÉ{ÉbÉNÉXÇÃññîˆÇ…ï∂éöóÒÇí«â¡
     INT EditLen = (INT)SendMessage(hWnd, WM_GETTEXTLENGTH, 0, 0);
@@ -46,17 +52,19 @@ void OutputToEditbox(HWND hWnd, LPCTSTR arg){ // ÉGÉfÉBÉbÉgÉ{ÉbÉNÉXÇÃññîˆÇ…ï∂éöó
     return;
 }
 
-extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
+extern "C" int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
+    hInst = hInstance;
+
     WNDCLASSEX wcl;
     wcl.cbSize = sizeof(WNDCLASSEX);
     wcl.hInstance = hInstance;
     wcl.lpszClassName = WND_CLASS_NAME;
-    wcl.lpfnWndProc = (WNDPROC)WindowProc;
-    wcl.style = NULL;
-    wcl.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(100)); // load the icon
-    wcl.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(100));
+    wcl.lpfnWndProc = WindowProc;
+    wcl.style = 0;
+    wcl.hIcon = LoadIcon(hInstance, TEXT("Res_Icon")); // ÉAÉCÉRÉìÇÃì«Ç›çûÇ›
+    wcl.hIconSm = LoadIcon(hInstance, TEXT("Res_Icon"));
     wcl.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcl.lpszMenuName = MAKEINTRESOURCE(1001);
+    wcl.lpszMenuName = 0;
     wcl.cbClsExtra = 0;
     wcl.cbWndExtra = 0;
     wcl.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
@@ -73,28 +81,18 @@ extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
     }
     if(scrx<800 || scry<480) {scrx=800; scry=480;}
 
-    // "how to use" statement
-    _tcscpy(tcmes[0], TEXT("ëÂó ÇÃÉtÉ@ÉCÉãÇéwíËÇµÇΩíPà Ç≈ÉtÉHÉãÉ_Ç…àÍäáêÆóùÇ∑ÇÈÉVÉìÉvÉãÇ»É\ÉtÉgÉEÉFÉAÇ≈Ç∑ÅB\n")
-        TEXT("è„ÇÃì¸óÕÉ{ÉbÉNÉXÇ…êÆóùÇµÇΩÇ¢ÉpÉX(ÉtÉãÉpÉX)ÅAÉtÉ@ÉCÉãñº(ÉèÉCÉãÉhÉJÅ[Éhâ¬)ÅA")
-        TEXT("âΩÉtÉHÉãÉ_íPà Ç…êUÇËï™ÇØÇÈÇ©Çì¸óÕÇµÅAOKÉ{É^ÉìÇ‹ÇΩÇÕEnter(åàíË)Ç≈èàóùÇäJénÇµÇ‹Ç∑ÅB\n")
-        TEXT("ÅuíÜífÅvÉ{É^ÉìÇ≈íÜífÇ≈Ç´Ç‹Ç∑Ç™ÅAä˘Ç…êUÇËï™ÇØÇÁÇÍÇΩÉtÉ@ÉCÉãÇå≥Ç…ñﬂÇ∑ã@î\ÇÕÇ†ÇËÇ‹ÇπÇÒÅBäÓñ{ìIÇ…é´èëèáÇ…êUÇËï™ÇØÇÁÇÍÇÈÇÕÇ∏Ç≈Ç∑Ç™ÅA")
-        TEXT("ÇªÇ§Ç»ÇÁÇ»Ç¢Ç±Ç∆Ç‡Ç†ÇÈÇÊÇ§Ç≈Ç∑(Ç»Ç∫ÇªÇ§Ç»ÇÈÇÃÇ©ÇÕïsñæÇ≈Ç∑)ÅBïKÇ∏éñëOÇ…ïtëÆÇÃSandboxÉtÉHÉãÉ_Ç≈ìÆçÏÇämîFÇµÇƒÇ≠ÇæÇ≥Ç¢ÅB")
-    );
-
-    // "about" statement
-    _tcscpy(tcmes[1], TEXT("í¥ëÂó ÉtÉ@ÉCÉãêÆóù Ver. 1.02É¿\n\n")
-        TEXT("êªçÏé“ÇÕÅAÇ±ÇÃÉ\ÉtÉgÉEÉFÉAÇÃégópÇ…ÇÊÇ¡Çƒî≠ê∂ÇµÇΩÉoÉOìôÇ…ÇÊÇÈåÎìÆçÏÇä‹ÇﬁÇ¢Ç©Ç»ÇÈëπäQÇ…ëŒÇµÇƒÇ‡ï‚èûívÇµÇ‹ÇπÇÒÅBé©å»ê”îCÇ≈Ç≤óòópÇ≠ÇæÇ≥Ç¢ÅB\n")
-        TEXT("\näJî≠ä¬ã´: Borland C++ 5.5.1 for Win32 w/ BCC Developer\n")
-        TEXT("ÉvÉçÉOÉâÉÄéÌï : WinCE Application\n")
-        TEXT("CPUÉAÅ[ÉLÉeÉNÉ`ÉÉ: ") TARGET_CPU
-        TEXT("\nÉrÉãÉhì˙éû: ") TEXT(__DATE__) TEXT(" ") TEXT(__TIME__)
-        TEXT("\n\nCopyright (C) 2019-2020 watamario All rights reserved.")
-    );
+    if(GetUserDefaultUILanguage() == 0x0411){ // UIÇ™ì˙ñ{åÍä¬ã´Ç»ÇÁì˙ñ{åÍÉäÉ\Å[ÉXÇì«Ç›çûÇﬁ
+        for(int i=0; i<NUMOFSTRINGTABLE; i++) LoadString(hInstance, i+1000, tcmes[i], sizeof(tcmes[0])/sizeof(tcmes[0][0]));
+        hmenu = LoadMenu(hInstance, TEXT("Res_JapaneseMenu"));
+    } else{ // ÇªÇÍà»äOÇ»ÇÁâpåÍÉäÉ\Å[ÉXÇì«Ç›çûÇﬁ
+        for(int i=0; i<NUMOFSTRINGTABLE; i++) LoadString(hInstance, i+1100, tcmes[i], sizeof(tcmes[0])/sizeof(tcmes[0][0]));
+        hmenu = LoadMenu(hInstance, TEXT("Res_EnglishMenu"));
+    }
     
     hwnd = CreateWindowEx(
         0,
         WND_CLASS_NAME,
-        TEXT("í¥ëÂó ÉtÉ@ÉCÉãêÆóù"),
+        tcmes[0],
         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
@@ -120,10 +118,10 @@ extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
         hInstance,
         NULL);
 
-    hbtn_ok = CreateWindowEx( // ok button
+    hbtn_ok = CreateWindowEx( // OKÉ{É^Éì
         0,
         TEXT("BUTTON"),
-        TEXT("OK"),
+        tcmes[9],
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
         0, 
         0,
@@ -134,10 +132,10 @@ extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
         hInstance,
         NULL);
 
-    hbtn_abort = CreateWindowEx( // abort button
+    hbtn_abort = CreateWindowEx( // íÜífÉ{É^Éì
         0,
         TEXT("BUTTON"),
-        TEXT("íÜíf"),
+        tcmes[10],
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | WS_DISABLED,
         0,
         0,
@@ -148,10 +146,10 @@ extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
         hInstance,
         NULL);
 
-    hbtn_clr = CreateWindowEx( // clear the history button
+    hbtn_clr = CreateWindowEx( // óöóè¡ãéÉ{É^Éì
         0,
         TEXT("BUTTON"),
-        TEXT("óöóè¡ãé"),
+        tcmes[11],
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
         0,
         0,
@@ -166,14 +164,15 @@ extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
      
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
+    hAccel = LoadAccelerators(hInstance, TEXT("Res_Accel"));
     
     MSG msg;
     BOOL bRet;
     SetTimer(hwnd, 1, 16, NULL);
     
-    while( (bRet=GetMessage(&msg,hwnd,0,0)) ){ // continue unless the message is WM_QUIT(=0)
-        if(bRet==-1) break;
-        else{
+    while( (bRet=GetMessage(&msg, hwnd, 0, 0)) ){ // ÉÅÉbÉZÅ[ÉWÇ™ WM_QUIT(=0) Ç≈Ç»Ç¢å¿ÇËÉãÅ[Év
+        if(bRet==-1) break; // ÉGÉâÅ[Ç»ÇÁî≤ÇØÇÈ
+        else if(!TranslateAccelerator(hwnd, hAccel, &msg)){
             TranslateMessage(&msg);
             DispatchMessage(&msg); 
         }
@@ -182,8 +181,11 @@ extern "C" int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPS
 }
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
-    switch(uMsg) {
-        case WM_CREATE: // called at first
+    switch(uMsg){
+        case WM_CREATE: // ÉEÉBÉìÉhÉEê∂ê¨éû
+            SetMenu(hWnd, hmenu);
+            if(GetUserDefaultUILanguage() == 0x0411) CheckMenuRadioItem(hmenu, 2080, 2081, 2080, MF_BYCOMMAND);
+            else CheckMenuRadioItem(hmenu, 2080, 2081, 2081, MF_BYCOMMAND);
             hMemDC = CreateCompatibleDC(NULL);
             hBshSys = CreateSolidBrush(GetSysColor(COLOR_BTNFACE));
             hPenSys = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_BTNFACE));
@@ -250,12 +252,14 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
                 NULL);
             break;
       
-        case WM_CLOSE: // called when closing
+        case WM_CLOSE: // èIóπéû
             KillTimer(hWnd, 1);
             DestroyWindow(hwnd);
             break;
       
         case WM_TIMER:
+            if( (hwnd_temp=GetFocus()) && (hwnd_temp==hedi_path || hwnd_temp==hedi_sepunit || hwnd_temp==hedi_name || hwnd_temp==hedi_out)) hwnd_focused = hwnd_temp;
+            
             if(b<=0 && g<255) g++; //
             if(g>=255 && r>0) r--; //
             if(r<=0 && b<255) b++; //
@@ -272,16 +276,13 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
 
             DeleteObject(hBrush);
             DeleteObject(hPen);
-            hBrush = CreateSolidBrush(RGB(r, g, b)); // rgbÉuÉâÉVÇçÏê¨(ìhÇËÇ¬Ç‘Çµóp)
-            hPen = CreatePen(PS_SOLID, 1, RGB(r, g, b)); // rgbÉyÉìÇçÏê¨(ó÷äsóp)
-            InvalidateRect(hwnd, NULL, FALSE);
-
-            if(!(hwnd_temp=GetFocus()) || (hwnd_temp!=hedi_path && hwnd_temp!=hedi_sepunit && hwnd_temp!=hedi_name)) break;
-            hwnd_focused = hwnd_temp;
+            hBrush = CreateSolidBrush(RGB(r, g, b)); // ÉuÉâÉVÇçÏê¨(ìhÇËÇ¬Ç‘Çµóp)
+            hPen = CreatePen(PS_SOLID, 1, RGB(r, g, b)); // ÉyÉìÇçÏê¨(ó÷äsóp)
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
             
-        case WM_SIZE: // when the window size is changed
-            ResizeReplaceObjects();
+        case WM_SIZE: // ÉEÉBÉìÉhÉEÉTÉCÉYïœçXéû
+            ResizeMoveControls();
             break;
 
         case WM_PAINT:
@@ -289,17 +290,17 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
             break;
 
         case WM_ACTIVATE:
-            // set focus on the input box when the main window is activated
+            // ÉÅÉCÉìÉEÉBÉìÉhÉEÇ™ÉAÉNÉeÉBÉuâªÇ≥ÇÍÇΩÇ∆Ç´ÅAà»ëOÉtÉHÅ[ÉJÉXÇ™ìñÇΩÇ¡ÇƒÇ¢ÇΩÉGÉfÉBÉbÉgÇ…ÉtÉHÅ[ÉJÉXÇñﬂÇ∑
             if(LOWORD(wParam) == WA_ACTIVE || LOWORD(wParam) == WA_CLICKACTIVE) SetFocus(hwnd_focused);
             break;
         
         case WM_COMMAND:
             switch(LOWORD(wParam)){
-                case 0: // Select Directory
+                case 0: // ÉfÉBÉåÉNÉgÉäëIë
                     SelDir();
                     break;
 
-                case 1: // OK button
+                case 1: // OKÉ{É^Éì
                     if(working) break;
                     working = true;
                     EnableWindow(hbtn_ok, FALSE);
@@ -307,44 +308,85 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
                     EnableWindow(hedi_name, FALSE);
                     EnableWindow(hedi_sepunit, FALSE);
                     EnableWindow(hbtn_abort, TRUE);
+                    EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_GRAYED); // ÅuLanguageÅvÉÅÉjÉÖÅ[ÇÉOÉåÅ[ÉAÉEÉg
+                    DrawMenuBar(hwnd);
 
                     SendMessage(hedi_path, WM_GETTEXT, MAX_PATH, (LPARAM)InputBox.path);
                     SendMessage(hedi_name, WM_GETTEXT, MAX_PATH, (LPARAM)InputBox.name);
                     SendMessage(hedi_sepunit, WM_GETTEXT, 10, (LPARAM)tctemp);
                     InputBox.sepunit = _ttoi(tctemp);
-                    curdir=false;
-                    if(SendMessage(hedi_path, WM_GETTEXTLENGTH, 0, 0)==0) curdir=true;
+                    curdir = false;
+                    if(SendMessage(hedi_path, WM_GETTEXTLENGTH, 0, 0)==0) curdir = true;
                     
                     hThread = CreateThread(NULL, 0, SeparateFiles, 0, 0, &dThreadID);
+                    SetThreadPriority(hThread, THREAD_PRIORITY_BELOW_NORMAL);
                     break;
 
-                case 2: // abort
+                case 2: // íÜíf
                     aborted = true;
                     break;
 
-                case 3: // clear the history
+                case 3: // óöóè¡ãé
                     editlen = SendMessage(hedi_out, WM_GETTEXTLENGTH, 0, 0);
                     SendMessage(hedi_out, EM_SETSEL, 0, editlen);
                     SendMessage(hedi_out, EM_REPLACESEL, 0, (WPARAM)TEXT(""));
                     break;
                 
-                case 2009: // close
+                case 2009: // èIóπ
                     SendMessage(hWnd, WM_CLOSE, 0, 0);
                     break;
 
-                case 2020: // paste
+                case 2020: // ì\ÇËïtÇØ
                     SendMessage(hwnd_focused, WM_PASTE, 0, 0);
                     break;
 
-                case 2101: // how to use
-                    MessageBox(hWnd, tcmes[0], TEXT("égÇ¢ï˚"), MB_OK | MB_ICONINFORMATION);
+                case 2021: // ëSëIë
+                    editlen = (INT)SendMessage(hwnd_focused, WM_GETTEXTLENGTH, 0, 0);
+                    SendMessage(hwnd_focused, EM_SETSEL, 0, editlen);
                     break;
 
-                case 2109: // about
-                    MessageBox(hWnd, tcmes[1], TEXT("Ç±ÇÃÉvÉçÉOÉâÉÄÇ…Ç¬Ç¢Çƒ"), MB_OK | MB_ICONINFORMATION);
+                case 2080: // ì˙ñ{åÍÇ…ïœçX
+                    DestroyMenu(hmenu);
+                    hmenu = LoadMenu(hInst, TEXT("Res_JapaneseMenu"));
+                    SetMenu(hWnd, hmenu);
+                    CheckMenuRadioItem(hmenu, 2080, 2081, 2080, MF_BYCOMMAND);
+
+                    for(int i=0; i<NUMOFSTRINGTABLE; i++) LoadString(hInst, i+1000, tcmes[i], sizeof(tcmes[0])/sizeof(tcmes[0][0]));
+                    SetWindowText(hbtn_ok, tcmes[9]);
+                    SetWindowText(hbtn_abort, tcmes[10]);
+                    SetWindowText(hbtn_clr, tcmes[11]);
+                    SetWindowText(hwnd, tcmes[0]);
+                    break;
+
+                case 2081: // âpåÍÇ…ïœçX
+                    DestroyMenu(hmenu);
+                    hmenu = LoadMenu(hInst, TEXT("Res_EnglishMenu"));
+                    SetMenu(hWnd, hmenu);
+                    CheckMenuRadioItem(hmenu, 2080, 2081, 2081, MF_BYCOMMAND);
+
+                    for(int i=0; i<NUMOFSTRINGTABLE; i++) LoadString(hInst, i+1100, tcmes[i], sizeof(tcmes[0])/sizeof(tcmes[0][0]));
+                    SetWindowText(hbtn_ok, tcmes[9]);
+                    SetWindowText(hbtn_abort, tcmes[10]);
+                    SetWindowText(hbtn_clr, tcmes[11]);
+                    SetWindowText(hwnd, tcmes[0]);
+                    break;
+
+                case 2101: // égÇ¢ï˚
+                    MessageBox(hWnd, tcmes[8], tcmes[7], MB_OK | MB_ICONINFORMATION);
+                    break;
+
+                case 2109: // Ç±ÇÃÉvÉçÉOÉâÉÄÇ…Ç¬Ç¢Çƒ
+                    wsprintf(tctemp, TEXT("%s")
+                        TEXT("%s") COMPILER_NAME TEXT("\n")
+                        TEXT("%s") TARGET_PLATFORM TEXT(" Application\n")
+                        TEXT("%s") TARGET_CPU TEXT("\n")
+                        TEXT("%s") TEXT(__DATE__) TEXT(" ") TEXT(__TIME__)
+                        TEXT("\n\nCopyright (C) 2019-2020 watamario All rights reserved."),
+                        tcmes[2], tcmes[3], tcmes[4], tcmes[5], tcmes[6]);
+                    MessageBox(hWnd, tctemp, tcmes[1], MB_OK | MB_ICONINFORMATION);
                     break;
             }
-            if(LOWORD(wParam)<50) SetFocus(hwnd_focused); // set focus on input box if the clicked control isn't a edit box 
+            if(LOWORD(wParam)<50) SetFocus(hwnd_focused); // ÉGÉfÉBÉbÉgÉRÉìÉgÉçÅ[Éãà»äOÇ»ÇÁÉGÉfÉBÉbÉgÉRÉìÉgÉçÅ[ÉãÇ…ÉtÉHÅ[ÉJÉXÇñﬂÇ∑
             else return DefWindowProc(hWnd, uMsg, wParam, lParam);
             break;
 
@@ -362,14 +404,14 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
     return 0;
 }
 
-// custom window procedure for the Edit Control
+// ÉGÉfÉBÉbÉgÉRÉìÉgÉçÅ[ÉãópÇÃÉTÉuÉNÉâÉXâª Window Procedure
 LRESULT CALLBACK EditPathWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
     switch(uMsg){
         case WM_DESTROY:
             SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)wpedipath_old);
             break;
 
-        // EnterÇ≈éüÇÃÉ{ÉbÉNÉXÇ÷, é¿çsëŒè€Ç≈Ç»ÇØÇÍÇŒdefaultÇ…ó¨Ç∑(ä‘Ç…ï ÇÃÉÅÉbÉZÅ[ÉWì¸ÇÍÇøÇ·ÇæÇﬂ!!)
+        // EnterÇ≈éüÇÃÉGÉfÉBÉbÉgÇ÷, é¿çsëŒè€Ç≈Ç»ÇØÇÍÇŒdefaultÇ…ó¨Ç∑(ä‘Ç…ï ÇÃÉÅÉbÉZÅ[ÉWì¸ÇÍÇøÇ·ÇæÇﬂ!!)
         case WM_CHAR:
             switch((CHAR)wParam){
                 case VK_RETURN:
@@ -388,7 +430,7 @@ LRESULT CALLBACK EditNameWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
             SetWindowLongPtr(hWnd, GWLP_WNDPROC, (LONG_PTR)wpediname_old);
             break;
 
-        // EnterÇ≈éüÇÃÉ{ÉbÉNÉXÇ÷, é¿çsëŒè€Ç≈Ç»ÇØÇÍÇŒdefaultÇ…ó¨Ç∑(ä‘Ç…ï ÇÃÉÅÉbÉZÅ[ÉWì¸ÇÍÇøÇ·ÇæÇﬂ!!)
+        // EnterÇ≈éüÇÃÉGÉfÉBÉbÉgÇ÷, é¿çsëŒè€Ç≈Ç»ÇØÇÍÇŒdefaultÇ…ó¨Ç∑(ä‘Ç…ï ÇÃÉÅÉbÉZÅ[ÉWì¸ÇÍÇøÇ·ÇæÇﬂ!!)
         case WM_CHAR:
             switch((CHAR)wParam){
                 case VK_RETURN:
@@ -418,15 +460,18 @@ LRESULT CALLBACK EditSepWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
                     EnableWindow(hedi_name, FALSE);
                     EnableWindow(hedi_sepunit, FALSE);
                     EnableWindow(hbtn_abort, TRUE);
+                    EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_GRAYED); // ÅuÉIÉvÉVÉáÉìÅvÉÅÉjÉÖÅ[ÇÉOÉåÅ[ÉAÉEÉg
+                    DrawMenuBar(hwnd);
 
                     SendMessage(hedi_path, WM_GETTEXT, MAX_PATH, (LPARAM)InputBox.path);
                     SendMessage(hedi_name, WM_GETTEXT, MAX_PATH, (LPARAM)InputBox.name);
                     SendMessage(hedi_sepunit, WM_GETTEXT, 10, (LPARAM)tctemp);
                     InputBox.sepunit = _ttoi(tctemp);
-                    curdir=false;
+                    curdir = false;
                     if(SendMessage(hedi_path, WM_GETTEXTLENGTH, 0, 0)==0) curdir=true;
 
                     hThread = CreateThread(NULL, 0, SeparateFiles, 0, 0, &dThreadID);
+                    SetThreadPriority(hThread, THREAD_PRIORITY_BELOW_NORMAL);
                     return 0;
             }
         default:
@@ -436,9 +481,9 @@ LRESULT CALLBACK EditSepWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 }
 
 INT CALLBACK SelDirProc(HWND hWnd, UINT uMsg, LPARAM lParam1, LPARAM lParam2){
-    switch (uMsg) {
+    switch (uMsg){
         case BFFM_VALIDATEFAILED:
-            MessageBox(hWnd, TEXT("ïsê≥Ç»ÉtÉHÉãÉ_Ç≈Ç∑"), TEXT("Error"), MB_OK | MB_ICONEXCLAMATION);
+            MessageBox(hWnd, tcmes[12], tcmes[13], MB_OK | MB_ICONEXCLAMATION);
             return 1;
     }
     return 0;
@@ -457,14 +502,13 @@ void SelDir(){
     bi.hwndOwner = hwnd;
     bi.lpfn = SelDirProc;
     bi.ulFlags = BIF_EDITBOX | BIF_VALIDATE | BIF_NEWDIALOGSTYLE;
-    bi.lpszTitle = TEXT("êÆóùëŒè€ÇÃÉtÉHÉãÉ_ÇëIëÇµÇƒÇ≠ÇæÇ≥Ç¢ÅB");
+    bi.lpszTitle = tcmes[14];
     lpid = SHBrowseForFolder(&bi);
 
-    if(!lpid) return;
-    else{
+    if(lpid){
         hr = SHGetMalloc(&pMalloc);
         if(hr == E_FAIL){
-            MessageBox(hwnd, TEXT("SHGetMalloc()ä÷êîÇ≈ÉGÉâÅ[Ç™î≠ê∂ÇµÇ‹ÇµÇΩ"), TEXT("Error"), MB_OK | MB_ICONERROR);
+            MessageBox(hwnd, tcmes[15], tcmes[13], MB_OK | MB_ICONERROR);
             return;
         }
         SHGetPathFromIDList(lpid, szName);
@@ -477,13 +521,13 @@ void SelDir(){
     return;
 }
 
-void ResizeReplaceObjects(){
+void ResizeMoveControls(){
     GetClientRect(hwnd, &rect);
     scrx = rect.right; scry = rect.bottom;
     
-    // create a font for the main window
-    if(scrx/24 < scry/12) rLogfont.lfHeight = scrx/20;
-    else rLogfont.lfHeight = scry/10;
+    // ÉÅÉCÉìÉEÉBÉìÉhÉEópÇÃÉtÉHÉìÉgÇçÏê¨
+    if(scrx/24 < scry/12) rLogfont.lfHeight = scrx/24;
+    else rLogfont.lfHeight = scry/12;
     rLogfont.lfWidth = 0;
     rLogfont.lfEscapement = 0;
     rLogfont.lfOrientation = 0;
@@ -498,9 +542,9 @@ void ResizeReplaceObjects(){
     rLogfont.lfPitchAndFamily = VARIABLE_PITCH | FF_SWISS;
     _tcscpy(rLogfont.lfFaceName, TEXT("MS PGothic"));
     DeleteObject(hMesFont);
-    hMesFont = CreateFontIndirect(&rLogfont);//ÉtÉHÉìÉgÇçÏê¨
+    hMesFont = CreateFontIndirect(&rLogfont); // ÉtÉHÉìÉgÇçÏê¨
 
-    // create a font for buttons
+    // É{É^ÉìópÇÃÉtÉHÉìÉgÇçÏê¨
     if(24*scrx/700 < 24*scry/400) rLogfont.lfHeight = 24*scrx/700;
     else  rLogfont.lfHeight = 24*scry/400;
     rLogfont.lfWidth = 0;
@@ -519,13 +563,13 @@ void ResizeReplaceObjects(){
     DeleteObject(hFbtn);
     hFbtn = CreateFontIndirect(&rLogfont);
     
-    // create a font for notes
+    // íçópÇÃÉtÉHÉìÉgÇçÏê¨
     if(12*scrx/700 < 12*scry/400) rLogfont.lfHeight = 12*scrx/700;
     else rLogfont.lfHeight = 12*scry/400;
     DeleteObject(hFnote);
     hFnote = CreateFontIndirect(&rLogfont);
 
-    // create a font for edit boxes
+    // ÉGÉfÉBÉbÉgÉRÉìÉgÉçÅ[ÉãópÇÃÉtÉHÉìÉgÇçÏê¨
     if(16*scrx/700 < 16*scry/400) rLogfont.lfHeight = 16*scrx/700;
     else rLogfont.lfHeight = 16*scry/400;
     if(rLogfont.lfHeight<12) rLogfont.lfHeight = 12;
@@ -545,7 +589,7 @@ void ResizeReplaceObjects(){
     DeleteObject(hFedi);
     hFedi = CreateFontIndirect(&rLogfont);
     
-    // apply newly created fonts to objects
+    // äeÉRÉìÉgÉçÅ[ÉãÇ…ÉtÉHÉìÉgÇìKóp
     SendMessage(hbtn_sel, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
     SendMessage(hbtn_ok, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
     SendMessage(hbtn_abort, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
@@ -555,7 +599,7 @@ void ResizeReplaceObjects(){
     SendMessage(hedi_path, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
     SendMessage(hedi_out, WM_SETFONT, (WPARAM)hFedi, MAKELPARAM(FALSE, 0));
 
-    // move and resize objects
+    // à⁄ìÆÇ∆ÉTÉCÉYïœçX
     btnsize[0] = 64*scrx/700; btnsize[1] = 32*scry/400;
     MoveWindow(hedi_path, btnsize[0], 0, scrx-btnsize[0]*2, btnsize[1], TRUE);
     MoveWindow(hbtn_sel, scrx-btnsize[0], 0, btnsize[0], btnsize[1], TRUE);
@@ -563,13 +607,13 @@ void ResizeReplaceObjects(){
     MoveWindow(hedi_sepunit, btnsize[0]*4, btnsize[1], btnsize[0]*2, btnsize[1], TRUE);
     MoveWindow(hbtn_ok, btnsize[0]*6, btnsize[1], btnsize[0], btnsize[1], TRUE);
     MoveWindow(hbtn_abort, btnsize[0]*7, btnsize[1], btnsize[0], btnsize[1], TRUE);
-    MoveWindow(hbtn_clr, btnsize[0]*8, btnsize[1], btnsize[0]*2, btnsize[1], TRUE);
+    MoveWindow(hbtn_clr, btnsize[0]*8, btnsize[1], btnsize[0]*5/2, btnsize[1], TRUE);
     MoveWindow(hedi_out, scrx/20, scry*3/10, scrx*9/10, scry*13/20, TRUE);
     
+    DeleteObject(hBitmap);
     hBitmap = CreateCompatibleBitmap(hdc=GetDC(hwnd), rect.right, rect.bottom);
     ReleaseDC(hwnd, hdc);
     SelectObject(hMemDC, hBitmap);
-    DeleteObject(hBitmap);
     InvalidateRect(hwnd, NULL, FALSE);
     return;
 }
@@ -589,21 +633,19 @@ void Paint(){
     SetBkMode(hMemDC, TRANSPARENT);
     SelectObject(hMemDC, hFnote); // ÉfÉoÉCÉXÉRÉìÉeÉLÉXÉgÇ…ÉtÉHÉìÉgÇê›íË
     rect.right=btnsize[0]; rect.bottom=btnsize[1];
-    DrawText(hMemDC, TEXT("ëŒè€ÉpÉX:"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    rect.top=btnsize[1]; rect.bottom=btnsize[1]*3/2;
-    DrawText(hMemDC, TEXT("ÉtÉ@ÉCÉãñº"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    rect.top=btnsize[1]*3/2; rect.bottom=btnsize[1]*2;
-    DrawText(hMemDC, TEXT("ÇÃå`éÆ:"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    rect.top=btnsize[1]; rect.left=btnsize[0]*3; rect.right=btnsize[0]*4;
-    DrawText(hMemDC, TEXT("ï™äÑíPà :"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    DrawText(hMemDC, tcmes[16], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    rect.top=btnsize[1]; rect.bottom=btnsize[1]*2;
+    DrawText(hMemDC, tcmes[17], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    rect.top=btnsize[1]; rect.bottom=btnsize[1]*2; rect.left=btnsize[0]*3; rect.right=btnsize[0]*4;
+    DrawText(hMemDC, tcmes[18], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     
     SetBkMode(hMemDC, OPAQUE);
     SetBkColor(hMemDC, RGB(255, 255, 0));
     SetTextColor(hMemDC, RGB(0, 0, 255));
     SelectObject(hMemDC, hMesFont);
     rect.left=0; rect.right=scrx; rect.top=btnsize[1]*2; rect.bottom=scry*3/10;
-    if(working) DrawText(hMemDC, TEXT("êÆóùíÜÇ≈Ç∑..."), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-    else DrawText(hMemDC, TEXT("êÆóùÇ∑ÇÈÉpÉXÅAÉtÉ@ÉCÉãñºÅAï™äÑíPà Çì¸óÕ"), -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    if(working) DrawText(hMemDC, tcmes[19], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    else DrawText(hMemDC, tcmes[20], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     rect.left=0; rect.right=scrx; rect.top=0; rect.bottom=scry;
     
     hdc = BeginPaint(hwnd, &ps);
@@ -624,8 +666,10 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
         EnableWindow(hedi_name, TRUE);
         EnableWindow(hedi_sepunit, TRUE);
         EnableWindow(hbtn_abort, FALSE);
-        OutputToEditbox(hedi_out, TEXT("ï™äÑíPà Ç…ñ≥å¯Ç»ílÇ™ì¸óÕÇ≥ÇÍÇ‹ÇµÇΩÅB\r\n"));
-        SetWindowText(hwnd, TEXT("í¥ëÂó ÉtÉ@ÉCÉãêÆóù"));
+        EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_ENABLED);
+        DrawMenuBar(hwnd);
+        OutputToEditbox(hedi_out, tcmes[21]);
+        SetWindowText(hwnd, tcmes[0]);
         SendMessage(hwnd, APP_SETFOCUS, 0, 0);
         working=false;
         return 0;
@@ -640,8 +684,10 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
         EnableWindow(hedi_name, TRUE);
         EnableWindow(hedi_sepunit, TRUE);
         EnableWindow(hbtn_abort, FALSE);
-        OutputToEditbox(hedi_out, TEXT("äYìñÇ∑ÇÈÉtÉ@ÉCÉãÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÇ≈ÇµÇΩ°ì¸óÕÇµÇΩÉpÉX§ÉtÉ@ÉCÉãñºÇÃå`éÆÇ…åÎÇËÇ™Ç»Ç¢Ç©ämîFÇµÇƒÇ≠ÇæÇ≥Ç¢°\r\n"));
-        SetWindowText(hwnd, TEXT("í¥ëÂó ÉtÉ@ÉCÉãêÆóù"));
+        EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_ENABLED);
+        DrawMenuBar(hwnd);
+        OutputToEditbox(hedi_out, tcmes[22]);
+        SetWindowText(hwnd, tcmes[0]);
         SendMessage(hwnd, APP_SETFOCUS, 0, 0);
         working=false;
         return 0;
@@ -651,7 +697,7 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
     else wsprintf(tcsf, TEXT("1"), InputBox.path);
     CreateDirectory(tcsf, NULL);
     if(!(file.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
-        _tcscpy(tcresult, TEXT("åªç›1ÉtÉHÉãÉ_ñ⁄Ç…êÆóùíÜ..."));
+        _tcscpy(tcresult, tcmes[23]);
         SetWindowText(hwnd, tcresult);
         OutputToEditbox(hedi_out, tcresult);
         SendMessage(hedi_out, EM_REPLACESEL, 0, (WPARAM)TEXT("\r\n"));
@@ -663,7 +709,7 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
             wsprintf(tcdest, TEXT("%s\\1\\%s"), InputBox.path, file.cFileName);
         }
         if(!MoveFile(tcsf, tcdest)){
-            wsprintf(tcresult, TEXT("ÉtÉ@ÉCÉã%sÇ%sÇ…à⁄ìÆíÜÇ…ÉGÉâÅ[Ç™î≠ê∂ÇµÇ‹ÇµÇΩ°ÉtÉ@ÉCÉãÇäJÇ¢ÇƒÇ¢ÇÈÉAÉvÉäÉPÅ[ÉVÉáÉìÇÕëSÇƒèIóπÇµ§ì«Ç›éÊÇËêÍópÇ…Ç»Ç¡ÇƒÇ¢Ç»Ç¢Ç©ämîFÇµÇƒâ∫Ç≥Ç¢°\r\n"), tcsf, tcdest);
+            wsprintf(tcresult, tcmes[24], tcsf, tcdest);
             OutputToEditbox(hedi_out, tcresult);
         }
         i++;
@@ -673,7 +719,7 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
         if(FindNextFile(hFFile, &file)){
             if(!(file.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
                 if(i==0){
-                    _tcscpy(tcresult, TEXT("åªç›1ÉtÉHÉãÉ_ñ⁄Ç…êÆóùíÜ..."));
+                    _tcscpy(tcresult, tcmes[23]);
                     SetWindowText(hwnd, tcresult);
                     OutputToEditbox(hedi_out, tcresult);
                     SendMessage(hedi_out, EM_REPLACESEL, 0, (WPARAM)TEXT("\r\n"));
@@ -682,7 +728,7 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
                     dirnum++;
                     wsprintf(tcsf, TEXT("%s\\%d"), InputBox.path, dirnum);
                     CreateDirectory(tcsf, NULL);
-                    wsprintf(tcresult, TEXT("åªç›%dÉtÉHÉãÉ_ñ⁄Ç…êÆóùíÜ..."), dirnum);
+                    wsprintf(tcresult, tcmes[25], dirnum);
                     SetWindowText(hwnd,tcresult);
                     OutputToEditbox(hedi_out, tcresult);
                     SendMessage(hedi_out, EM_REPLACESEL, 0, (WPARAM)TEXT("\r\n"));
@@ -697,24 +743,24 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
                     wsprintf(tcdest, TEXT("%s\\%d\\%s"), InputBox.path, dirnum, file.cFileName);
                 }
                 if(!MoveFile(tcsf, tcdest)){
-                    wsprintf(tcresult, TEXT("ÉtÉ@ÉCÉã%sÇ%sÇ…à⁄ìÆíÜÇ…ÉGÉâÅ[Ç™î≠ê∂ÇµÇ‹ÇµÇΩ°ÉtÉ@ÉCÉãÇäJÇ¢ÇƒÇ¢ÇÈÉAÉvÉäÉPÅ[ÉVÉáÉìÇÕëSÇƒèIóπÇµ§ì«Ç›éÊÇËêÍópÇ…Ç»Ç¡ÇƒÇ¢Ç»Ç¢Ç©ämîFÇµÇƒâ∫Ç≥Ç¢°\r\n"), tcsf, tcdest);
+                    wsprintf(tcresult, tcmes[24], tcsf, tcdest);
                     OutputToEditbox(hedi_out, tcresult);
                 }
                 i++;
             }
         }else{
-            if(GetLastError()==ERROR_NO_MORE_FILES) _tcscpy(tcresult, TEXT("êÆóùäÆóπ°\r\n"));
-            else _tcscpy(tcresult, TEXT("êÆóùíÜÇ…ïsñæÇ»ÉGÉâÅ[Ç™î≠ê∂ÇµÇ‹ÇµÇΩ°\r\n"));
+            if(GetLastError()==ERROR_NO_MORE_FILES) _tcscpy(tcresult, tcmes[26]);
+            else _tcscpy(tcresult, tcmes[27]);
             break;
         }
     }
     
     FindClose(hFFile);
-    SetWindowText(hwnd, TEXT("í¥ëÂó ÉtÉ@ÉCÉãêÆóù"));
+    SetWindowText(hwnd, tcmes[0]);
 
     if(aborted){
         aborted = false;
-        _tcscpy(tcresult, TEXT("èàóùÇÕíÜífÇ≥ÇÍÇ‹ÇµÇΩ°"));
+        _tcscpy(tcresult, tcmes[28]);
     }
 
     OutputToEditbox(hedi_out, tcresult);
@@ -724,8 +770,10 @@ DWORD WINAPI SeparateFiles(LPVOID lpParameter){
     EnableWindow(hedi_name, TRUE);
     EnableWindow(hedi_sepunit, TRUE);
     EnableWindow(hbtn_abort, FALSE);
+    EnableMenuItem(hmenu, 2, MF_BYPOSITION | MF_ENABLED);
+    DrawMenuBar(hwnd);
     InvalidateRect(hwnd, NULL, FALSE);
     SendMessage(hwnd, APP_SETFOCUS, 0, 0);
-    working=false;
+    working = false;
     return 0;
 }

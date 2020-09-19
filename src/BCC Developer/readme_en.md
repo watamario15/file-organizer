@@ -9,6 +9,6 @@ This project has been created by **BCC Developer**, and I use **Borland C++ Comp
 This compiler is quite old and supports Windows XP and older, and can't compile 64-bit applications.
 
 # Notes
-The source code is "**1.cpp**," the resource script is "**resource.rc**," and the icon is "**app.ico**." You can edit and build by opening "**FileSeparation.bdp**" if you use BCC Developer. To avoid errors, don't put this folder on a path that includes other than English characters like Japanese characters.
+The source code is "**1.cpp**", the resource script is "**resource.rc**", and the icon is "**app.ico**". You can edit and build by opening "**FileSeparation.bdp**" if you use BCC Developer. To avoid errors, don't put this folder on a path that includes other than English characters like Japanese characters.
 
 The executable binary file will be generated as "**FileSeparation.exe**" in the "**Debug**" folder for debug builds, and the "**Release**" folder for release builds.

@@ -215,7 +215,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
 }
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
-    switch(uMsg) {
+    switch(uMsg){
         case WM_CREATE: // ウィンドウ生成時
             // メニューの初期化
             hCmdBar = CommandBar_Create(hInst, hWnd, 1);
@@ -299,19 +299,19 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
         case WM_TIMER:
             if( (hwnd_temp=GetFocus()) && (hwnd_temp==hedi_path || hwnd_temp==hedi_sepunit || hwnd_temp==hedi_name || hwnd_temp==hedi_out)) hwnd_focused = hwnd_temp;
 
-            if (b<=0 && g<255) g+=8; //
-            if (g>=255 && r>0) r-=8; //
-            if (r<=0 && b<255) b+=8; //
-            if (b>=255 && g>0) g-=8; //
-            if (g<=0 && r<255) r+=8; //
-            if (r>=255 && b>0) b-=8; //
+            if(b<=0 && g<255) g+=8; //
+            if(g>=255 && r>0) r-=8; //
+            if(r<=0 && b<255) b+=8; //
+            if(b>=255 && g>0) g-=8; //
+            if(g<=0 && r<255) r+=8; //
+            if(r>=255 && b>0) b-=8; //
                                      //
-            if (r>255) r=255;        //
-            if (r<0) r=0;            //
-            if (g>255) g=255;        //
-            if (g<0) g=0;            //
-            if (b>255) b=255;        //
-            if (b<0) b=0;            //
+            if(r>255) r=255;        //
+            if(r<0) r=0;            //
+            if(g>255) g=255;        //
+            if(g<0) g=0;            //
+            if(b>255) b=255;        //
+            if(b<0) b=0;            //
 
             DeleteObject(hBrush);
             DeleteObject(hPen);
@@ -568,7 +568,7 @@ LRESULT CALLBACK EditSepWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 }
 
 INT CALLBACK SelDirProc(HWND hWnd, UINT uMsg, LPARAM lParam1, LPARAM lParam2){
-    switch (uMsg) {
+    switch(uMsg){
         case BFFM_VALIDATEFAILED:
             MessageBox(hWnd, tcmes[12], tcmes[13], MB_OK | MB_ICONEXCLAMATION);
             return 1;

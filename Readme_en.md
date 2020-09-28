@@ -29,6 +29,9 @@ I put executable files in "**Windows CE**".
 
 This software may crash when you have too many files to separate, but the process usually has finished properly and no problem... I believe.
 
+## Batch File
+Run "**FileSeparation.bat**" or "**FileSeparation_en.bat**" in a folder you want to process, and then follow the instructions.
+
 # How to use
 1. Enter a full path to put files in order. You can also use the "**...**" button to select a folder.
 1. Enter a filename with wildcards. For example, if you want to target all files, enter "**\***", if you want to target only mp3 files, enter "**\*.mp3**".

@@ -16,13 +16,14 @@ I compiled for CPUs that the IDE supports. However, since I don't have other dev
 I tested on **Windows PC**.
 
 # How to run
+実行ファイルは **Releases** から取得できます。
 ## Windows PC
-"**FileSeparating.exe**" is the executable file. Download this file and run.
+"**FileSeparating.exe**" is the executable file.
 
 Some antimalware software like Avast! Antivirus wrongly detects a software compiled by Borland C++ Compiler as a malware. Since this problem, they might detect "**PF_IA-32(OlderWindows).exe**" as malware. In such cases, please restore from the chest and run. You can check the source code if you desire.
 
 ## Windows CE
-I put executable files in "**bin_WinCE**".
+I put executable files in "**Windows CE**".
 
 "**AppMain.exe**" is for ARMv4I devices. If your device is other than that, select one from "**Other CPU**". Then, run it in a way that your device requires.
 
@@ -42,7 +43,7 @@ Normally, files will be separated in alphabetical order. You can use the Abort b
 You don't need to install this software. Please run the executable file directly. You can also uninstall by just deleting the file. This software doesn't use registry or such.
 
 # About source codes
-Source codes are in "**src**." Please refer to the readmes in each project folder.
+Please refer to the readmes in each project folder.
 
 # Notes
 **THE AUTHOR OF THIS SOFTWARE WILL NOT TAKE ANY RESPONSIBILITY FOR ANY DAMAGES BY USING THIS SOFTWARE.**
@@ -65,6 +66,9 @@ Short term mitigation: **Enable compatibility mode from the system setting, refe
 I'm going to fix these issues when I get to know the workaround. If you know that, help me by telling me!
 
 # Release notes
+## v1.1 (9/28/2020)
+General release
+
 ## v1.1 beta (9/19/2020)
 Calculation threads' priority is now below normal also on the PC version.
 

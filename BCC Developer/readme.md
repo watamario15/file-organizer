@@ -1,4 +1,4 @@
-# 超大量ファイル整理 Ver. 1.1 BCC Developer版ソースコード
+# 超大量ファイル整理 Ver. 1.2 BCC Developer版ソースコード
 This document is also available in [English](readme_en.md).
 
 **Windows PC**用のソースコードです。

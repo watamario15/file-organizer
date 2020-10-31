@@ -5,7 +5,7 @@
 //
 
 VS_VERSION_INFO    VERSIONINFO
-FILEVERSION     1, 1, 0, 1
+FILEVERSION     1, 2, 0, 0
 FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
 FILEFLAGS       0
 FILEOS          VOS_NT_WINDOWS32
@@ -17,21 +17,21 @@ FILETYPE        VFT_APP
         {
             VALUE "Comments",         "大量のファイルを指定した単位でフォルダに一括整理するシンプルなソフトウェアです。\0"
             VALUE "FileDescription",  "超大量ファイル整理\0"
-            VALUE "FileVersion",      "1.1\0"
+            VALUE "FileVersion",      "1.2\0"
             VALUE "InternalName",     "File Separation\0"
-            VALUE "LegalCopyright",   "Copyright (C) 2019-2020 watamario All rights reserved.\0"
+            VALUE "LegalCopyright",   "Copyright (C) 2019-2020 watamario15 All rights reserved.\0"
             VALUE "ProductName",      "超大量ファイル整理 for Windows PC\0"
-            VALUE "ProductVersion",   "1.1\0"
+            VALUE "ProductVersion",   "1.2\0"
         }
         BLOCK "040904b0"
         {
             VALUE "Comments",         "This is a simple free software that separates a massive amount of files into folders by set separation unit.\0"
             VALUE "FileDescription",  "File Separation Software\0"
-            VALUE "FileVersion",      "1.1\0"
+            VALUE "FileVersion",      "1.2\0"
             VALUE "InternalName",     "File Separation\0"
-            VALUE "LegalCopyright",   "Copyright (C) 2019-2020 watamario All rights reserved.\0"
+            VALUE "LegalCopyright",   "Copyright (C) 2019-2020 watamario15 All rights reserved.\0"
             VALUE "ProductName",      "File Separation for Windows PC\0"
-            VALUE "ProductVersion",   "1.1\0"
+            VALUE "ProductVersion",   "1.2\0"
         }
     }
     BLOCK "VarFileInfo"
@@ -113,7 +113,7 @@ STRINGTABLE
     
     1001 "このプログラムについて"
     
-    1002 "超大量ファイル整理 Ver. 1.1\n\
+    1002 "超大量ファイル整理 Ver. 1.2\n\
 製作者は、このソフトウェアの使用によって発生したバグ等による誤動作を含むいかなる損害に対しても補償致しません。自己責任でご利用ください。\n\n"
 
     1003 "開発環境: "
@@ -175,7 +175,7 @@ STRINGTABLE
     
     1101 "About this software"
     
-    1102 "File Separation Ver. 1.1\n\
+    1102 "File Separation Ver. 1.2\n\
 The author won't take any responsibility for any damages by using this software. Please use this software under your responsibility.\n\n"
 
     1103 "Development environment: "

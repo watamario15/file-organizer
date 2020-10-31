@@ -201,12 +201,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
     hAccel = LoadAccelerators(hInstance, TEXT("Res_Accel"));
 
     MSG msg;
-    BOOL bRet;
     SetTimer(hwnd, 1, TIMER_AWAIT, NULL);
 
-    while( (bRet=GetMessage(&msg, hwnd, 0, 0)) ){ // メッセージが WM_QUIT(=0) でない限りループ
-        if(bRet==-1) break; // エラーなら抜ける
-        else if(!TranslateAccelerator(hwnd, hAccel, &msg)){
+    while(GetMessage(&msg, NULL, 0, 0)){ // メッセージが WM_QUIT(=0) でない限りループ
+        if(!TranslateAccelerator(hwnd, hAccel, &msg)){
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
@@ -232,7 +230,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
             hedi_path = CreateWindowEx( // 操作対象パス入力ボックス
                0,
                TEXT("EDIT"),
-               NULL,
+               TEXT(""),
                WS_CHILD | WS_VISIBLE | ES_LEFT | WS_BORDER | ES_AUTOHSCROLL,
                0,
                0,
@@ -279,7 +277,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
             hedi_out = CreateWindowEx( // 出力表示ボックス
                 0,
                 TEXT("EDIT"),
-                NULL,
+                TEXT(""),
                 WS_CHILD | WS_VISIBLE | ES_READONLY | ES_LEFT | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
                 0,
                 0,
@@ -435,7 +433,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
                         TEXT("%s") TARGET_PLATFORM TEXT(" Application\n")
                         TEXT("%s") TARGET_CPU TEXT("\n")
                         TEXT("%s") TEXT(__DATE__) TEXT(" ") TEXT(__TIME__)
-                        TEXT("\n\n(C) 2019-2020 watamario"),
+                        TEXT("\n(C) 2019-2020 watamario15"),
                         tcmes[2], tcmes[3], tcmes[4], tcmes[5], tcmes[6]);
                     MessageBox(hWnd, tctemp, tcmes[1], MB_OK | MB_ICONINFORMATION);
                     StoppingTimer--;
@@ -686,7 +684,7 @@ void ResizeMoveControls(){
     SendMessage(hedi_sepunit, WM_SETFONT, (WPARAM)hFbtn, MAKELPARAM(FALSE, 0));
 
     // 移動とサイズ変更
-    MoveWindow(hCmdBar, NULL, NULL, NULL, NULL, TRUE);
+    MoveWindow(hCmdBar, 0, 0, 0, 0, TRUE);
     btnsize[0] = 64*scrx/700; btnsize[1] = 32*scry/400;
     MoveWindow(hedi_path, btnsize[0], CmdBar_Height, scrx-btnsize[0]*2, btnsize[1], TRUE);
     MoveWindow(hbtn_sel, scrx-btnsize[0], CmdBar_Height, btnsize[0], btnsize[1], TRUE);

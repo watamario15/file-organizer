@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <tchar.h>
 #include <shlobj.h>
+#include "defproc.h"
 
 #define TARGET_PLATFORM TEXT("Win32")
 #define TARGET_CPU TEXT("IA-32(x86)")
@@ -167,12 +168,10 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LP
     hAccel = LoadAccelerators(hInstance, TEXT("Res_Accel"));
     
     MSG msg;
-    BOOL bRet;
     SetTimer(hwnd, 1, 16, NULL);
     
-    while( (bRet=GetMessage(&msg, hwnd, 0, 0)) ){ // メッセージが WM_QUIT(=0) でない限りループ
-        if(bRet==-1) break; // エラーなら抜ける
-        else if(!TranslateAccelerator(hwnd, hAccel, &msg)){
+    while(GetMessage(&msg, NULL, 0, 0)){ // メッセージが WM_QUIT(=0) でない限りループ
+        if(!TranslateAccelerator(hwnd, hAccel, &msg)){
             TranslateMessage(&msg);
             DispatchMessage(&msg); 
         }
@@ -193,7 +192,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
             hedi_path = CreateWindowEx( // 操作対象パス入力ボックス
                 0,
                 TEXT("EDIT"),
-                NULL,
+                TEXT(""),
                 WS_CHILD | WS_VISIBLE | ES_LEFT | WS_BORDER | ES_AUTOHSCROLL,
                 0, 
                 0,
@@ -240,7 +239,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
             hedi_out = CreateWindowEx( // 出力表示ボックス
                 0,
                 TEXT("EDIT"),
-                NULL,
+                TEXT(""),
                 WS_CHILD | WS_VISIBLE | ES_READONLY | ES_LEFT | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
                 0,
                 0,
@@ -381,7 +380,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
                         TEXT("%s") TARGET_PLATFORM TEXT(" Application\n")
                         TEXT("%s") TARGET_CPU TEXT("\n")
                         TEXT("%s") TEXT(__DATE__) TEXT(" ") TEXT(__TIME__)
-                        TEXT("\n\nCopyright (C) 2019-2020 watamario All rights reserved."),
+                        TEXT("\n\nCopyright (C) 2019-2020 watamario15 All rights reserved."),
                         tcmes[2], tcmes[3], tcmes[4], tcmes[5], tcmes[6]);
                     MessageBox(hWnd, tctemp, tcmes[1], MB_OK | MB_ICONINFORMATION);
                     break;
@@ -399,7 +398,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
             break;
 
         default:
-            return DefWindowProc(hWnd, uMsg, wParam, lParam);
+            return myDefWindowProc(hWnd, uMsg, wParam, lParam);
     }
     return 0;
 }

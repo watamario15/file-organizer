@@ -1,4 +1,4 @@
-# 超大量ファイル整理 Ver. 1.1 eMbedded Visual C++ 4.0版ソースコード
+# 超大量ファイル整理 Ver. 1.2 eMbedded Visual C++ 4.0版ソースコード
 This document is also available in [English](readme_en.md).
 
 **Windows CE**用のソースコードです。

@@ -16,7 +16,7 @@ I compiled for CPUs that the IDE supports. However, since I don't have other dev
 I tested on **Windows PC**.
 
 # How to run
-実行ファイルは **Releases** から取得できます。
+You can get the executable files at **[Releases](https://github.com/watamario15/File-Separation/releases)**.
 ## Windows PC
 "**FileSeparating.exe**" is the executable file.
 

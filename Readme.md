@@ -16,7 +16,7 @@ This document is also available in [English](Readme_en.md).
 **Windows PC** で動作確認を行っています。
 
 # 実行手順
-実行ファイルは **Releases** から取得できます。
+実行ファイルは **[Releases](https://github.com/watamario15/File-Separation/releases)** から取得できます。
 ## Windows PC版
 **FileSeparating.exe** が実行ファイルです。
 

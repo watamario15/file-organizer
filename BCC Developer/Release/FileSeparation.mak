@@ -9,9 +9,9 @@ CFLAG=-W  -3 -O2 -w- -AT -pc -H- -k -b  -WU
 OUTDIR=-nRelease
 CINCS=
 TARGET=Release\FileSeparation.exe
-SRC1="D:\Programming\File Separation\BCC Developer\1.cpp"
+SRC1="C:\Users\watamario\Documents\Git-Local-Repo\File-Separation\BCC Developer\1.cpp"
 OBJ1=Release\1.obj
-RC1="D:\Programming\File Separation\BCC Developer\resource.rc"
+RC1="C:\Users\watamario\Documents\Git-Local-Repo\File-Separation\BCC Developer\resource.rc"
 RES1=Release\resource.res
 RESINCS=-iC:\Users\watamario\Documents\bcc\borland\bcc55\Include
 

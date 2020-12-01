@@ -8,7 +8,7 @@ Filename2=defproc.h,1,FileSeparation.bdp,1,defproc.h
 ResourceName=resource.rc
 RunParam=
 Count=2
-Current=1
+Current=2
 
 [Compile1]
 DefName=Debug
